@@ -4,15 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "*"
 uvicorn = "*"
 sqlalchemy = "*"
 databases = "*"
 python-dotenv = "*"
-passlib = {extras = ["bcrypt"], version = "*"}
 httpx = "*"
 aiosqlite = "*"
 alembic = "*"
+pyjwt = "*"
+bcrypt = "*"
+passlib = {extras = ["bcrypt"], version = "*"}
 
 [dev-packages]
 

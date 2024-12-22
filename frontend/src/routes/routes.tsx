@@ -7,8 +7,14 @@ import LearningArticlesPage from "@pages/learning-articles";
 import NewsPage from "@pages/news";
 import OnlinePricesPage from "@pages/online-prices";
 import { createBrowserRouter } from "react-router-dom";
+import AuthPage from "@pages/AuthPage";
+
 
 export const routes = createBrowserRouter([
+  {
+    path: "/auth",
+    element: <AuthPage />,
+  },
   {
     path: "/",
     element: <Layout />,
@@ -17,6 +23,7 @@ export const routes = createBrowserRouter([
         path: "/",
         element: <HomePage />,
       },
+      
       {
         path: "/news",
         element: <NewsPage />,
