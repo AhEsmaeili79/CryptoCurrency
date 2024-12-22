@@ -1,0 +1,113 @@
+import emailjs from "@emailjs/browser";
+import { useRef } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import CustomInput from "../input";
+import CustomTextArea from "../text-area";
+import { NewsCommentFormValuesType } from "./type";
+
+export default function NewsCommentForm({ news_id }: { news_id: string }) {
+  const form = useForm<NewsCommentFormValuesType>();
+
+  const { register, handleSubmit, formState, reset } = form;
+
+  const { errors } = formState;
+
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const sendEmail = () => {
+    if (formRef.current) {
+      formRef.current.news_id.value = news_id;
+
+      toast.promise(
+        emailjs.sendForm(
+          "service_5i1c2iw",
+          "template_dajn32s",
+          formRef.current ?? "",
+          "5hJ0ABe_CQQPkmO31"
+        ),
+        {
+          loading: "شکیبا باشید ...",
+          success: () => {
+            reset();
+            return <b>ایمیل شما با موفقیت ارسال شد.</b>;
+          },
+          error: (
+            <p>
+              <b className="block">متاسفانه خطایی رخ داده است! </b>
+              دوباره تلاش کنید
+            </p>
+          ),
+        }
+      );
+    }
+  };
+
+  return (
+    <div className="mt-12 bg-white rounded-2xl card-shadow p-8">
+      <h4 className="mb-4 font-bold text-gray-800 text-xl">
+        نظرات خود را با ما به اشتراک بگذارید.
+      </h4>
+      <form onSubmit={handleSubmit(sendEmail)} ref={formRef} noValidate>
+        <div className="flex flex-col gap-2">
+          <input
+            type="hidden"
+            name="news_id"
+            ref={(input) => formRef.current && formRef.current.news_id == input}
+          />
+
+          <CustomInput
+            register={register}
+            errors={errors}
+            label="نام و نام خانوادگی"
+            name="username"
+          />
+          <CustomInput
+            register={register}
+            errors={errors}
+            label="ایمیل"
+            name="email"
+            type="email"
+            validationFormat={{
+              required: {
+                value: true,
+                message: "ایمیل الزامی است.",
+              },
+              pattern: {
+                value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                message: "ایمیل نادرست است.",
+              },
+              validate: {
+                notAdmin: (fieldValue: string) => {
+                  return (
+                    fieldValue !== "admin@example.com" ||
+                    "لطفا ایمیل دیگری وارد نمایید."
+                  );
+                },
+                notBlackListed: (fieldValue: string) => {
+                  return (
+                    !fieldValue.endsWith("badddmain.com") ||
+                    "دامنه وارد شده صحیح نیست."
+                  );
+                },
+              },
+            }}
+          />
+          <CustomTextArea
+            register={register}
+            errors={errors}
+            label="نظر شما"
+            name="comment"
+          />
+
+          <button
+            type="submit"
+            className="bg-blue-primary text-white px-16 mx-auto py-2 rounded-lg "
+          >
+            ارسال نظر
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

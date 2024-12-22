@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "YekanBakh";
+  src: url(./assets/fonts/YekanBakhFaNum-Regular.ttf);
+}
+
+@font-face {
+  font-family: "YekanBakh-bold";
+  src: url(./assets/fonts/YekanBakhFaNum-Bold.ttf);
+}
+@font-face {
+  font-family: "YekanBakh-semiBold";
+  src: url(./assets/fonts/YekanBakhFaNum-SemiBold.ttf);
+}
+@font-face {
+  font-family: "YekanBakh-extraBold";
+  src: url(./assets/fonts/YekanBakhFaNum-ExtraBold.ttf);
+}
+@font-face {
+  font-family: "YekanBakh-light";
+  src: url(./assets/fonts/YekanBakhFaNum-Light.ttf);
+}
+@font-face {
+  font-family: "YekanBakh-black";
+  src: url(./assets/fonts/YekanBakhFaNum-Black.ttf);
+}
+
+@layer {
+  .header__banner {
+    @apply -mt-[5rem] z-0 relative xl:pb-28 pb-16 lg:px-0 px-4 rounded-2xl max-h-[50rem] h-full
+  }
+}
+
+body,
+html {
+  font-family: "YekanBakh";
+  direction: rtl;
+  background: #f6fcfe;
+  scroll-behavior: smooth;
+}
+
+.rtl {
+  direction: rtl;
+}
+
+.ltr {
+  direction: ltr;
+}
+
+.font-bold {
+  font-family: "YekanBakh-bold" !important;
+}
+.font-extraBold {
+  font-family: "YekanBakh-extraBold" !important;
+}
+.font-semiBold {
+  font-family: "YekanBakh-semiBold" !important;
+}
+.font-light {
+  font-family: "YekanBakh-light" !important;
+}
+.font-black {
+  font-family: "YekanBakh-black" !important;
+}
+
+.inner-container {
+  max-width: 1200px;
+}
+
+@media (max-width: 1330px) {
+  .inner-container {
+    max-width: 1100px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .inner-container {
+    max-width: 95%;
+  }
+}
+@media (max-width: 576px) {
+  body,
+  html {
+    font-size: 14px;
+  }
+}
+
+.card-shadow {
+  box-shadow: 0px 12px 25px -9px rgba(83, 83, 83, 0.15);
+}
+
+.pie_chart .echarts-for-react {
+  height: 80px !important;
+}
+.pie_chart .echarts-for-react div {
+  height: inherit !important;
+  width: inherit !important;
+}
+.pie_chart .echarts-for-react div canvas {
+  height: inherit !important;
+}
+
+::-webkit-scrollbar {
+  width: 5px; /* width of the entire scrollbar */
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f6fcfe; /* color of the tracking area */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #b2b2b2; /* color of the scroll thumb */
+  border-radius: 20px; /* roundness of the scroll thumb */
+}

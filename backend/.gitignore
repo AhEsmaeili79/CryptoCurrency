@@ -1,0 +1,31 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+
+# Virtual environment
+env/
+venv/
+Pipfile.lock
+
+# Databases
+*.db
+*.sqlite3
+
+# Alembic
+alembic/versions/*
+
+# Logs
+*.log
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# Mac OS
+.DS_Store
+
+# Miscellaneous
+*.sqlite
+*.db
