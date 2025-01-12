@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../assets/css/AuthPage.module.css"; // Import as a module
 import { signupUser, loginUser } from "../api/authApi"; // Import the API calls
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const AuthPage: React.FC = () => {
   const [isLoginActive, setIsLoginActive] = useState(false);
@@ -10,6 +11,7 @@ const AuthPage: React.FC = () => {
     password: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,6 +46,8 @@ const AuthPage: React.FC = () => {
       setErrorMessage(response.detail); // Set the success message or error detail
       // Store the token and redirect user
       localStorage.setItem("access_token", response.access_token);
+
+      navigate("/");
     } catch (error: any) {
       setErrorMessage(error.message || "دوباره امتحان کنید!");
     }

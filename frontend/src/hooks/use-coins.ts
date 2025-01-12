@@ -3,7 +3,6 @@ import useSWR from "swr";
 
 const fetcher = async (params: string) => {
   const data = await instance.get(params).then((res) => res.data);
-
   return data;
 };
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from app.schemas import UserCreate, User ,LoginRequest
 from app.crud import create_user, get_user_by_email ,get_user_by_username
@@ -9,6 +9,7 @@ from app.utils.jwt import create_access_token, verify_token
 router = APIRouter(prefix="/auth", tags=["Auth"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+blacklist = set()
 def get_password_hash(password):
     return pwd_context.hash(password)
 
@@ -50,3 +51,31 @@ async def login(request: LoginRequest):
 async def verify_token_route(token: str):
     payload = verify_token(token)
     return {"message": "توکن معتبر نیست", "payload": payload}
+
+
+@router.post("/logout/")
+async def logout(request: Request):
+    token = request.query_params.get("token")  # Get token from query parameters
+    if not token:
+        raise HTTPException(status_code=400, detail="Token is missing from the request.")
+    
+    # Verify the token
+    token_data = verify_token(token)
+    
+    if not token_data:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    # Add the token's JWT ID (jti) to the blacklist or handle it accordingly
+    jti = token_data.get("jti")
+    
+    # Simulating blacklist action here
+    blacklist.add(jti)  # Ensure `blacklist` is defined and available for token management
+    
+    return {"message": "You have been logged out successfully."}
+
+@router.get("/secure-endpoint/")
+async def secure_endpoint(token: str = Depends(verify_token)):
+    jti = token.get("jti")
+    if jti in blacklist:
+        raise HTTPException(status_code=401, detail="توکن معتبر نیست")
+    return {"message": "دسترسی تایید شد"}

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://0.0.0.0:8001"; 
+const API_URL = "http://127.0.0.1:8000"; 
 
 
 const authApi = axios.create({
@@ -37,5 +37,28 @@ export const loginUser = async (email: string, password: string) => {
       : "An unexpected error occurred";
     console.error(errorMessage);
     throw new Error(errorMessage);
+  }
+};
+
+export const logoutUser = async (token: string) => {
+  try {
+    // Send logout request with token as query parameter
+    const response = await authApi.post(
+      `/auth/logout/?token=${token}`,  // Token sent as query parameter
+      {},  // No body needed for logout
+      {
+        headers: {
+          "Content-Type": "application/json", // Ensure correct content type
+        },
+      }
+    );
+    return response.data; // Return response message
+  } catch (error: any) {
+    const errorMessage =
+      axios.isAxiosError(error) && error.response
+        ? error.response.data.detail
+        : "An unexpected error occurred during logout";
+    console.error("Logout error:", errorMessage);
+    throw new Error(errorMessage); // Throw error for further handling in component
   }
 };
