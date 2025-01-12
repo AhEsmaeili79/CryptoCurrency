@@ -84,6 +84,7 @@ const AuthPage: React.FC = () => {
   }, []);
 
   return (
+    <div className={styles.authform}>
     <section className={styles.wrapper}>
       {/* Signup Form */}
       <div className={`${styles.form} ${styles.signup}`}>
@@ -149,6 +150,7 @@ const AuthPage: React.FC = () => {
       </div>
 
     </section>
+    </div>
   );
 };
 

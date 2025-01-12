@@ -1,39 +1,14 @@
 @font-face {
     font-family: "YekanBakh";
-    src: url(../fonts/YekanBakhFaNum-Regular.ttf);
+    src: url("../fonts/YekanBakhFaNum-Regular.ttf");  
   }
-  
-  @font-face {
-    font-family: "YekanBakh-bold";
-    src: url(..fonts/YekanBakhFaNum-Bold.ttf);
-  }
-  @font-face {
-    font-family: "YekanBakh-semiBold";
-    src: url(..assets/fonts/YekanBakhFaNum-SemiBold.ttf);
-  }
-  @font-face {
-    font-family: "YekanBakh-extraBold";
-    src: url(..assets/fonts/YekanBakhFaNum-ExtraBold.ttf);
-  }
-  @font-face {
-    font-family: "YekanBakh-light";
-    src: url(..fonts/YekanBakhFaNum-Light.ttf);
-  }
-  @font-face {
-    font-family: "YekanBakh-black";
-    src: url(..fonts/YekanBakhFaNum-Black.ttf);
-  }
-  
-  
-  
+    
   * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
     font-family: "YekanBakh","Poppins",
       sans-serif;
   }
-  body {
+  .authform{
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -50,7 +25,7 @@
     padding: 20px
       30px
       120px;
-    background: #4070f4;
+    background: #2150F5;
     box-shadow: 0
       5px
       10px
@@ -84,7 +59,7 @@
   }
   .wrapper.active
     .form.login {
-    bottom: -15%;
+    bottom: -13%;
     border-radius: 35%;
     box-shadow: 0 -5px
       10px rgba(0, 0, 0, 0.1);
@@ -181,7 +156,7 @@
   }
   .form.login
     input[type="submit"] {
-    background: #4070f4;
+    background: #2150F5;
     color: #fff;
     border: none;
   }
@@ -189,4 +164,12 @@
   form input::placeholder {
     direction: rtl;
   }
-  
+  .error {
+    color: #e74c3c; /* Red color for error text */
+    font-size: 16px; /* Appropriate font size */
+    font-weight: 500; /* Make the text bold */
+    margin-top: 10px; /* Spacing from other elements */
+    text-align: center; /* Border to match the background color */
+    padding: 10px; /* Padding for better readability */
+    border-radius: 5px; /* Slightly rounded corners */
+  }
