@@ -3,5 +3,5 @@ export function timestampConvertor(timestamp: number) {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(timestamp);
+  }).format(timestamp * 1000);
 }

@@ -2,20 +2,36 @@ import { useCoins } from "@hooks/use-coins";
 import { timestampConvertor } from "@utils/timestamp-convertor";
 import ReactEcharts from "echarts-for-react";
 import LinearChartSkeleton from "./skeleton";
+import moment from "moment-jalaali"; // Import moment-jalaali
 
 export default function LinearChart() {
-  const { data: coins, isLoading } = useCoins(`/coins/bitcoin/charts?period=all
-    `);
+  const { data: coins, isLoading } = useCoins(`/coins/bitcoin/charts?period=all`);
 
+ 
   let option;
-  const upColor = "#ec0000";
-  const upBorderColor = "#8A0000";
-  const downColor = "#00da3c";
-  const downBorderColor = "#008F28";
+  const upColor = "#00ff00";  // Change up color (green)
+  const upBorderColor = "#009900";  // Change up border color (dark green)
+  const downColor = "#000";  // Change down color (red)
+  const downBorderColor = "#000";  // Change down border color (dark red)
+  const ma1Color = "#0066ff";  // Change "بیت کوین" MA line color (blue)
+  const ma2Color = "#ff6600"; 
 
-  const coins_array = coins?.slice(0, 50).map((item: any) => {
-    return [timestampConvertor(item[0]), item[1], item[2], item[3]];
-  });
+  const currentDate = new Date(); // Get current date
+  const currentMonth = currentDate.getMonth(); // Get current month (0-based)
+  const twoYearsAgo = new Date(currentDate.setMonth(currentMonth - 1)); // Set date to 24 months ago
+
+  // Filter data to include the last 24 months
+  const coins_array = coins
+    ?.filter((item: any) => {
+      const itemDate = new Date(timestampConvertor(item[0]));
+      return itemDate >= twoYearsAgo && itemDate <= new Date(); // Only include data from the last 24 months
+    })
+    .slice(0, 50)
+    .map((item: any) => {
+      return [timestampConvertor(item[0]), item[1], item[2], item[3], item[4]]; // Add any additional data needed
+    });
+
+  console.log(coins_array);
 
   const data0 = splitData(
     coins_array
@@ -36,12 +52,19 @@ export default function LinearChart() {
         ]
   );
 
+  console.log(data0.values);
+
   function splitData(rawData: any) {
     const categoryData = [];
     const values = [];
     for (var i = 0; i < rawData.length; i++) {
-      categoryData.push(rawData[i].splice(0, 1)[0]);
-      values.push(rawData[i]);
+      const [timestamp, open, close, low, high] = rawData[i];
+      
+      // Handle missing high values
+      const validHigh = high !== undefined ? high : close; // Fallback to close if high is undefined
+  
+      categoryData.push(timestamp);
+      values.push([open, close, low, validHigh]);
     }
     return {
       categoryData: categoryData,
@@ -65,6 +88,11 @@ export default function LinearChart() {
     return result;
   }
 
+  // Convert timestamp to Persian date using moment-jalaali
+  function convertToPersianDate(timestamp: any) {
+    return moment(timestamp).format('jYYYY/jMM/jDD'); // Directly use timestamp in milliseconds
+  }
+
   option = {
     tooltip: {
       trigger: "axis",
@@ -72,34 +100,47 @@ export default function LinearChart() {
         type: "cross",
       },
     },
-
+  
+    grid: {
+      left: "10%",  // Add space on the left side for Y-axis labels
+      right: "10%",  // Add space on the right side for the chart elements
+      bottom: "15%",  // Add space at the bottom for the X-axis title and labels
+      top: "10%",  // Add space at the top for the title
+    },
+  
     xAxis: {
       type: "category",
-      data: data0.categoryData,
+      data: data0.categoryData.map((timestamp: any) => convertToPersianDate(timestamp)),
       boundaryGap: false,
       min: "dataMin",
       max: "dataMax",
+      name: "تاریخ",  // X-axis title
+      nameLocation: "middle",
+      nameTextStyle: {
+        fontSize: 14,
+        color: "#333",
+      },
+      axisLabel: {
+        margin: 10,  // Add space between the X-axis and labels
+      },
     },
+  
     yAxis: {
       scale: true,
       splitArea: {
         show: true,
       },
+      name: "قیمت (دلار)",  // Y-axis title
+      nameLocation: "middle",
+      nameTextStyle: {
+        fontSize: 14,
+        color: "#333",
+      },
+      axisLabel: {
+        margin: 10,  // Add space between the Y-axis and labels
+      },
     },
-    // dataZoom: [
-    //   {
-    //     type: "inside",
-    //     start: 50,
-    //     end: 200,
-    //   },
-    //   {
-    //     show: true,
-    //     type: "slider",
-    //     top: "90%",
-    //     start: 50,
-    //     end: 200,
-    //   },
-    // ],
+  
     series: [
       {
         name: "",
@@ -125,6 +166,7 @@ export default function LinearChart() {
         data: calculateMA(1),
         smooth: true,
         lineStyle: {
+          color: ma1Color,
           opacity: 0.5,
         },
       },
@@ -134,6 +176,7 @@ export default function LinearChart() {
         data: calculateMA(10),
         smooth: true,
         lineStyle: {
+          color: ma2Color,
           opacity: 0.5,
         },
       },
