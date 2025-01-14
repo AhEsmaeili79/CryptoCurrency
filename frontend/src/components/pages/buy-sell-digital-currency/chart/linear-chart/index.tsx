@@ -113,8 +113,7 @@ export default function LinearChart() {
       data: data0.categoryData.map((timestamp: any) => convertToPersianDate(timestamp)),
       boundaryGap: false,
       min: "dataMin",
-      max: "dataMax",
-      name: "تاریخ",  // X-axis title
+      max: "dataMax",// X-axis title
       nameLocation: "middle",
       nameTextStyle: {
         fontSize: 14,
@@ -129,8 +128,7 @@ export default function LinearChart() {
       scale: true,
       splitArea: {
         show: true,
-      },
-      name: "قیمت (دلار)",  // Y-axis title
+      },// Y-axis title
       nameLocation: "middle",
       nameTextStyle: {
         fontSize: 14,

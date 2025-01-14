@@ -6,8 +6,9 @@ import HomePage from "@pages/home";
 import LearningArticlesPage from "@pages/learning-articles";
 import NewsPage from "@pages/news";
 import OnlinePricesPage from "@pages/online-prices";
-import { createBrowserRouter } from "react-router-dom";
 import AuthPage from "@pages/AuthPage";
+import BuyandSellPage from "@pages/buysell";
+import { createBrowserRouter } from "react-router-dom";
 
 
 export const routes = createBrowserRouter([
@@ -47,6 +48,10 @@ export const routes = createBrowserRouter([
       {
         path: "/news/detail/:id",
         element: <NewsDetail />,
+      },
+      {
+        path: "/BuySell",
+        element: <BuyandSellPage />,
       },
     ],
   },

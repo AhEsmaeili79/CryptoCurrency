@@ -24,14 +24,12 @@ const handleLogout = async () => {
   const token = localStorage.getItem("access_token"); // Retrieve token from localStorage
   if (!token) {
     console.error("No token found in localStorage");
-    alert("خطا: توکن یافت نشد. لطفاً دوباره وارد شوید.");
     return;
   }
 
   try {
     await logoutUser(token); // Call the logout API
-    localStorage.removeItem("access_token"); // Clear the token from localStorage
-    alert("خروج از سیستم با موفقیت انجام شد");
+    localStorage.removeItem("access_token");
     window.location.href = "/"; // Redirect user to homepage or login page
   } catch (error: any) {
     console.error("Error during logout:", error.message);
