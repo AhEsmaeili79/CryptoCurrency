@@ -1,5 +1,5 @@
 from sqlalchemy import insert, select, update
-from app.models import users, wallets, transactions
+from app.models import users, wallets, transactions, tokens
 from app.database import database
 from typing import Optional
 
@@ -31,4 +31,13 @@ async def create_transaction(user_id: int, currency: str, amount: float, type: s
 
 async def update_wallet_balance(user_id: int, new_balance: float):
     query = update(wallets).where(wallets.c.user_id == user_id).values(balance=new_balance)
+    return await database.execute(query)
+
+from datetime import datetime
+async def save_token(user_id: int, access_token: str, expires_at: str):
+    query = insert(tokens).values(
+        user_id=user_id,
+        access_token=access_token,
+        expires_at=expires_at,
+    )
     return await database.execute(query)
