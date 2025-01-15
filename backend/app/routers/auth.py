@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
 from app.schemas import UserCreate, User ,LoginRequest
 from app.crud import create_user, get_user_by_email ,get_user_by_username
 from app.database import database

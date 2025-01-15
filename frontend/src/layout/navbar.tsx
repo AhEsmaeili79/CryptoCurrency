@@ -123,7 +123,7 @@ const handleLogout = async () => {
         {isLoggedIn ? (
           <>
             <Link
-              to="/buy-sell/digital-currency"
+              to="/dashboard"
               className="text-14 text-white bg-blue-primary py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
             >
               <span className="lg:block hidden">پروفایل</span>
@@ -147,8 +147,8 @@ const handleLogout = async () => {
             </Link>
         )}
         <Link
-              to=""
-              className="text-14 text-white bg-red-primary py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
+              to="/buy-sell"
+              className="text-14 text-white bg-emerald-500 py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
             >
               <span className="lg:block hidden">پشتیبانی</span>
               <BsHeadphones size={20} />

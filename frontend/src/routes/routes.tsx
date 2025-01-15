@@ -8,6 +8,7 @@ import NewsPage from "@pages/news";
 import OnlinePricesPage from "@pages/online-prices";
 import AuthPage from "@pages/AuthPage";
 import BuyandSellPage from "@pages/buysell";
+import UpdateProfilePage from "@pages/UpdateProfilePage";
 import { createBrowserRouter } from "react-router-dom";
 
 
@@ -42,7 +43,7 @@ export const routes = createBrowserRouter([
         element: <ContactUsPage />,
       },
       {
-        path: "/buy-sell/digital-currency",
+        path: "/dashboard",
         element: <BuySellDigitalCurrency />,
       },
       {
@@ -50,8 +51,12 @@ export const routes = createBrowserRouter([
         element: <NewsDetail />,
       },
       {
-        path: "/BuySell",
+        path: "/buy-sell",
         element: <BuyandSellPage />,
+      },
+      {
+        path: "/profile",
+        element: <UpdateProfilePage />,
       },
     ],
   },

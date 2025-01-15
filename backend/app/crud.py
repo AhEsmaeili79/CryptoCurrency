@@ -1,14 +1,25 @@
 from sqlalchemy import insert, select, update
 from app.models import users, wallets, transactions
 from app.database import database
+from typing import Optional
 
-async def create_user(username: str, email: str, hashed_password: str):
-    query = insert(users).values(username=username, email=email, hashed_password=hashed_password)
+async def create_user(username: str, email: str, hashed_password: str, name: Optional[str] = None, phone: Optional[str] = None):
+    query = insert(users).values(
+        username=username,
+        email=email,
+        hashed_password=hashed_password,
+        name=name,
+        phone=phone,
+    )
     return await database.execute(query)
 
 async def get_user_by_email(email: str):
     query = select(users).where(users.c.email == email)
     return await database.fetch_one(query)
+
+async def update_user(user_id: int, update_data: dict):
+    query = update(users).where(users.c.id == user_id).values(**update_data)
+    return await database.execute(query)
 
 async def get_user_by_username(username: str):
     query = select(users).where(users.c.username == username)

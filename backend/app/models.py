@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Table
-from sqlalchemy.orm import relationship
 from app.database import metadata
 
 # User Table
@@ -10,6 +9,8 @@ users = Table(
     Column("username", String, unique=True, index=True),
     Column("email", String, unique=True, index=True),
     Column("hashed_password", String),
+    Column("name", String), 
+    Column("phone", String),
 )
 
 # Wallet Table
