@@ -2,7 +2,7 @@ import { useCoins } from "@hooks/use-coins";
 import { timestampConvertor } from "@utils/timestamp-convertor";
 import ReactEcharts from "echarts-for-react";
 import LinearChartSkeleton from "./skeleton";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment-jalaali";
 import { Line } from "react-chartjs-2";
 import {
@@ -19,26 +19,42 @@ import {
 // Register necessary chart components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-export default function LinearChart() {
-  const { data: coins, isLoading } = useCoins(`/coins/bitcoin/charts?period=all`);
+interface LinearChartProps {
+  coinName: string;
+  coin: { id: string; name: string; symbol: string; icon: string };
+}
 
+export default function LinearChart({ coin }: LinearChartProps) {
+  const { data: coins, isLoading } = useCoins(`/coins/${coin.id}/charts?period=all`);
   const [showChartJS, setShowChartJS] = useState(true); // Toggle between Chart.js and ECharts
+  const [currency, setCurrency] = useState<'دلار' | 'تومان'>('تومان'); // Currency state (default تومان)
+
+  const conversionRate = 82300; // Example rate: 1 دلار = 42,000 تومان, you could fetch this from an API.
 
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
-  const twoYearsAgo = new Date(currentDate.setMonth(currentMonth - 24)); // 24 months ago
+  const twoYearsAgo = new Date(currentDate.setMonth(currentMonth - 24));
+
   const convertToArabicNumerals = (number: number | string): string => {
     return number
       .toString()
       .replace(/\d/g, (digit) => String.fromCharCode(0x0660 + parseInt(digit, 10)));
   };
-  const filteredCoins = coins
-    ?.filter((item: any) => {
-      const itemDate = new Date(timestampConvertor(item[0]));
-      return itemDate >= twoYearsAgo && itemDate <= new Date();
-    })
-    .slice(0, 50)
-    .map((item: any) => [timestampConvertor(item[0]), item[1], item[2], item[3], item[4]]);
+
+  useEffect(() => {
+    // Filter the coins data to show the last 24 months
+    if (coins) {
+      setFilteredCoins(
+        coins.filter((item: any) => {
+          const itemDate = new Date(timestampConvertor(item[0]));
+          return itemDate >= twoYearsAgo && itemDate <= new Date();
+        })
+        .map((item: any) => [timestampConvertor(item[0]), item[1], item[2], item[3], item[4]])
+      );
+    }
+  }, [coins]);
+
+  const [filteredCoins, setFilteredCoins] = useState<any[]>([]);
 
   const data0 = splitData(filteredCoins || []);
 
@@ -53,28 +69,37 @@ export default function LinearChart() {
     return { categoryData, values };
   }
 
+  // Price conversion
+  const convertPrice = (price: number) => {
+    if (currency === 'دلار') {
+      return price; // دلار is already in the correct form
+    }
+    return price * conversionRate; // Convert to تومان
+  };
+
   // Chart.js Configurations
   const chartLabels = filteredCoins?.map((item: any) =>
     convertToArabicNumerals(moment(item[0]).format("jYYYY/jMM/jDD"))
   );
-  const chartData = filteredCoins?.map((item: any) => item[1]);
+  const chartData = filteredCoins?.map((item: any) => convertPrice(item[1])); // Convert prices to selected currency
   const chartJSData = {
     labels: chartLabels,
     datasets: [
       {
-        label: "قیمت بیت کوین (دلار)",
+        label: `${coin.name} قیمت (${currency})`,
         data: chartData,
         borderColor: "rgb(30, 30, 31)",
         fill: false,
       },
     ],
   };
+
   const chartJSOptions = {
     responsive: true,
     plugins: {
       title: {
         display: true,
-        text: "قیمت بیت کوین ",
+        text: `${coin.name} قیمت`,
         font: { size: 16, family: "YekanBakh" },
       },
     },
@@ -116,7 +141,7 @@ export default function LinearChart() {
         fontFamily: "YekanBakh", // Apply YekanBakh font
       },
     },
-    yAxis: { 
+    yAxis: {
       scale: true,
       axisLabel: {
         fontFamily: "YekanBakh", // Apply YekanBakh font
@@ -140,21 +165,34 @@ export default function LinearChart() {
 
   return (
     <div style={{ fontFamily: "YekanBakh" }}>
-      <div className="chart-toggle mb-4">
+      <div className="chart-toggle mb-4 flex">
+        {/* Button to toggle between دلار and تومان */}
         <button
-          onClick={() => setShowChartJS(!showChartJS)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+          onClick={() => setCurrency(currency === 'دلار' ? 'تومان' : 'دلار')}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg w-1/2"
         >
-          تغییر به نمودار {showChartJS ? "میله ای" : "خطی"}
+          تغییر به {currency === 'دلار' ? 'تومان' : 'دلار'}
         </button>
-      </div>
-      {showChartJS ? (
-        <div className="chart-container">
-          <Line data={chartJSData} options={chartJSOptions} />
+
+        {/* Coin icon and symbol */}
+        <div className="flex items-center justify-end w-1/2">
+          <img
+            src={coin.icon}
+            alt={coin.symbol}
+            className="w-12 h-12"
+          />
+          <span className="font-black text-2xl">{coin.symbol}</span>
         </div>
-      ) : (
-        <ReactEcharts option={echartsOption} />
-      )}
+      </div>
+
+      {/* Chart rendering */}
+      <div className="chart-container w-full">
+        {showChartJS ? (
+          <Line data={chartJSData} options={chartJSOptions} />
+        ) : (
+          <ReactEcharts option={echartsOption} />
+        )}
+      </div>
     </div>
   );
 }

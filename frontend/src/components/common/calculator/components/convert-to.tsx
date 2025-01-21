@@ -3,7 +3,7 @@ import { useExchangeStore } from "@store/exchange";
 import LoadingSkeleton from "./loading-skeleton";
 
 export default function ConvertTo() {
-  const { data: coins, isLoading } = useCoins("/coins?&limit=5&page=2");
+  const { data: coins, isLoading } = useCoins("/coins");
 
   const setTo = useExchangeStore((state) => state.setTo);
   if (isLoading) {

@@ -1,8 +1,21 @@
 import { useCoins } from "@hooks/use-coins";
 import LinearChart from "./linear-chart";
+import { useState, useEffect } from "react";
 
 export default function WholeChart() {
-  const { data: bitcoin, isLoading } = useCoins(`/coins/bitcoin`);
+  const { data: fetchedCoins, isLoading } = useCoins(`/coins`);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCoin, setSelectedCoin] = useState(null);
+
+  // Set Bitcoin as the default selected coin once the data is fetched
+  useEffect(() => {
+    if (fetchedCoins && fetchedCoins.result) {
+      const bitcoin = fetchedCoins.result.find(coin => coin.symbol.toLowerCase() === 'btc');
+      if (bitcoin) {
+        setSelectedCoin(bitcoin);
+      }
+    }
+  }, [fetchedCoins]);
 
   if (isLoading) {
     return (
@@ -11,15 +24,53 @@ export default function WholeChart() {
       </div>
     );
   }
+
+  // Filter coins based on the search query
+  const filteredCoins = fetchedCoins.result.filter((coin) =>
+    coin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    coin.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Handle coin selection
+  const handleCoinSelection = (coin) => {
+    setSelectedCoin(coin);
+  };
+
   return (
     <div className="bg-white card-shadow p-4 rounded-xl mt-4">
-      <div>
-        <div className="flex items-center gap-2">
-          <img src={bitcoin.icon} alt={bitcoin.symbol} className="w-12 h-12" />
-          <span className="font-black text-2xl ">{bitcoin.symbol}</span>
-        </div>
+      {/* Search input for filtering coins */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="جست و جوی رمز ارز جهت نمایش نمودار قیمت"
+          className="p-2 w-full border rounded-lg"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
-      <LinearChart />
+
+      {/* Display filtered list of coins */}
+      <div
+        className="max-h-[100px] overflow-y-auto space-y-2 mb-5"
+        style={{ maxHeight: "100px" }} // Limit the height of the list
+      >
+        {filteredCoins.slice(0).map((coin) => (  // Only show first 4 coins
+          <div
+            key={coin.id}
+            className="cursor-pointer p-2 bg-slate-100 rounded-lg flex items-center gap-2"
+            onClick={() => handleCoinSelection(coin)}
+          >
+            <img src={coin.icon} alt={coin.symbol} className="w-8 h-8" />
+            <span className="font-semibold">{coin.name} ({coin.symbol})</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Display selected coin details */}
+      
+      {selectedCoin && (
+      <LinearChart coin={selectedCoin} />
+      )}
     </div>
   );
 }
