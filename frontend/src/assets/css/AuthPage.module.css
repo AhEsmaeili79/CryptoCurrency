@@ -173,3 +173,7 @@
     padding: 10px; /* Padding for better readability */
     border-radius: 5px; /* Slightly rounded corners */
   }
+
+  .chart-container {
+    font-family: 'YekanBakh', Arial, sans-serif; /* Default fallback fonts */
+  }

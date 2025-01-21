@@ -1,7 +1,7 @@
 import { useCoins } from "@hooks/use-coins";
 import { timestampConvertor } from "@utils/timestamp-convertor"; // You can remove this if you don't need it
-import React, { useState, useEffect } from "react";
-import moment from "moment-jalaali"; 
+import React, { useState } from "react";
+import moment from "moment-jalaali";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -44,6 +44,13 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ cryptoname }) => {
     return moment(timestamp).format('jYYYY/jMM/jDD'); // Directly use timestamp in milliseconds
   }
 
+  // Utility function to convert numbers to Arabic numerals
+  const convertToArabicNumerals = (number: number | string): string => {
+    return number
+      .toString()
+      .replace(/\d/g, (digit) => String.fromCharCode(0x0660 + parseInt(digit, 10)));
+  };
+
   // Filter and process data to include the last 24 months
   const filteredCoins = coins
     ?.filter((item: any) => {
@@ -58,7 +65,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ cryptoname }) => {
   // Prepare labels for the chart using Persian dates
   const chartLabels = filteredCoins?.map((item: any) => {
     try {
-      return convertToPersianDate(item[0]); // Convert to Persian date
+      return convertToArabicNumerals(convertToPersianDate(item[0])); // Convert to Persian date with Arabic numerals
     } catch (error) {
       console.error("Error converting timestamp:", error);
       return item[0]; // Fallback to raw timestamp if conversion fails
@@ -94,6 +101,33 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ cryptoname }) => {
       title: {
         display: true,
         text: `قیمت ${cryptoname}`,
+        font: {
+          family: 'YekanBakh', // Use the custom font
+          size: 16,
+        },
+      },
+      legend: {
+        labels: {
+          font: {
+            family: 'YekanBakh', // Use the custom font
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          font: {
+            family: 'YekanBakh', // Use the custom font
+          },
+        },
+      },
+      y: {
+        ticks: {
+          font: {
+            family: 'YekanBakh', // Use the custom font
+          },
+        },
       },
     },
   };
@@ -105,8 +139,8 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ cryptoname }) => {
   return (
     <div className="chart-container bg-white p-6 rounded-lg shadow-lg mb-5">
       <div className="currency-toggle mb-4">
-        <button 
-          onClick={toggleCurrency} 
+        <button
+          onClick={toggleCurrency}
           className="px-4 py-2 bg-blue-500 text-white rounded-lg"
         >
           تغییر ارز به {currency === 'دلار' ? 'تومان' : 'دلار'}
