@@ -1,26 +1,7 @@
-import { getCoinsPriceExchange } from "@api/get-coins-price-exchange";
-import { useExchangeStore } from "@store/exchange";
 import { RiSettings5Fill } from "react-icons/ri";
 import { TbSwitchVertical } from "react-icons/tb";
-import ConvertTo from "./components/convert-to";
-import PaymentAmount from "./components/payment-amount";
-import Result from "./components/result";
-import { CalculatorPropsType } from "./type";
-import toast from "react-hot-toast";
 
-export default function Calculator({ customClassName }: CalculatorPropsType) {
-  const params = useExchangeStore((state) => state.params);
-  const setResult = useExchangeStore((state) => state.setResult);
-
-  const submitHandler = () => {
-    getCoinsPriceExchange(params)
-      .then((res) => setResult(res.price))
-      .catch(() => {
-        setResult(0);
-        toast.error("متاسفانه خطایی رخ داده است.");
-      });
-  };
-
+export default function Calculator({ customClassName }: { customClassName?: string }) {
   return (
     <div
       className={`${
@@ -39,25 +20,44 @@ export default function Calculator({ customClassName }: CalculatorPropsType) {
         <RiSettings5Fill size={30} />
       </div>
 
-      {/* Start مبلغ پرداختی */}
-      <PaymentAmount />
-      {/* End مبلغ پرداختی */}
-
-      {/* Start Switch button */}
-      <button className="my-2 mx-auto w-fit">
+      <div className="mt-4">
+        <label className="text-blue-primary font-semiBold mb-2 text-sm block">
+          مقدار
+        </label>
+        <div className="bg-white border border-gray-200 py-1 px-4 rounded-lg flex gap-4">
+          <input
+            className="bg-transparent w-2/3 py-2 text-left outline-none placeholder:text-xs placeholder:text-gray-300 placeholder:text-right text-gray-400 text-sm ltr"
+            placeholder="مقدار را وارد کنید"
+            type="number"
+            disabled
+          />
+          <select className="w-1/2 bg-transparent outline-none" defaultValue="" disabled>
+            <option value="">گزینه‌ای انتخاب نشده</option>
+          </select>
+        </div>
+      </div>
+      <button className="my-2 mx-auto w-fit" disabled>
         <TbSwitchVertical className="text-green-primary" size={30} />
       </button>
-      {/* End Switch button */}
-
-      {/* Start تبدیل به */}
-      <ConvertTo />
-      {/* End تبدیل به */}
-
-      <Result />
-
+      <div>
+        <label className="text-blue-primary font-semiBold mb-2 text-sm block">
+          تبدیل به
+        </label>
+        <div className="bg-white border border-gray-200 py-1 px-4 rounded-lg flex gap-4">
+          <select className="w-full py-1 bg-transparent outline-none" disabled>
+            <option hidden className="text-right m-4">
+              انتخاب کنید
+            </option>
+            <option>گزینه‌ای انتخاب نشده</option>
+          </select>
+        </div>
+      </div>
+      <div className="flex gap-2 justify-center text-sm mt-2 text-blue-primary">
+        <span>0 تتر</span>
+      </div>
       <button
         className="bg-red-700 text-white rounded-xl py-2 font-bold mt-4 w-full"
-        onClick={submitHandler}
+        disabled
       >
         تبادل کن
       </button>

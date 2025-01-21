@@ -38,7 +38,6 @@ export default function WholeChart() {
 
   return (
     <div className="bg-white card-shadow p-4 rounded-xl mt-4">
-      {/* Search input for filtering coins */}
       <div className="mb-4">
         <input
           type="text"
@@ -49,12 +48,12 @@ export default function WholeChart() {
         />
       </div>
 
-      {/* Display filtered list of coins */}
+      
       <div
         className="max-h-[100px] overflow-y-auto space-y-2 mb-5"
-        style={{ maxHeight: "100px" }} // Limit the height of the list
+        style={{ maxHeight: "100px" }} 
       >
-        {filteredCoins.slice(0).map((coin) => (  // Only show first 4 coins
+        {filteredCoins.slice(0).map((coin) => (  
           <div
             key={coin.id}
             className="cursor-pointer p-2 bg-slate-100 rounded-lg flex items-center gap-2"
@@ -66,7 +65,6 @@ export default function WholeChart() {
         ))}
       </div>
 
-      {/* Display selected coin details */}
       
       {selectedCoin && (
       <LinearChart coin={selectedCoin} />

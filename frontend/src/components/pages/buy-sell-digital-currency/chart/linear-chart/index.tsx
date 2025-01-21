@@ -26,14 +26,14 @@ interface LinearChartProps {
 
 export default function LinearChart({ coin }: LinearChartProps) {
   const { data: coins, isLoading } = useCoins(`/coins/${coin.id}/charts?period=all`);
-  const [showChartJS, setShowChartJS] = useState(true); // Toggle between Chart.js and ECharts
-  const [currency, setCurrency] = useState<'دلار' | 'تومان'>('تومان'); // Currency state (default تومان)
+  const [showChartJS, setShowChartJS] = useState(true); 
+  const [currency, setCurrency] = useState<'دلار' | 'تومان'>('تومان'); 
 
-  const conversionRate = 82300; // Example rate: 1 دلار = 42,000 تومان, you could fetch this from an API.
+  const conversionRate = 82300; 
 
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
-  const twoYearsAgo = new Date(currentDate.setMonth(currentMonth - 24));
+  const twoYearsAgo = new Date(currentDate.setMonth(currentMonth - 6));
 
   const convertToArabicNumerals = (number: number | string): string => {
     return number
@@ -42,7 +42,6 @@ export default function LinearChart({ coin }: LinearChartProps) {
   };
 
   useEffect(() => {
-    // Filter the coins data to show the last 24 months
     if (coins) {
       setFilteredCoins(
         coins.filter((item: any) => {
@@ -69,19 +68,18 @@ export default function LinearChart({ coin }: LinearChartProps) {
     return { categoryData, values };
   }
 
-  // Price conversion
   const convertPrice = (price: number) => {
     if (currency === 'دلار') {
-      return price; // دلار is already in the correct form
+      return price; 
     }
-    return price * conversionRate; // Convert to تومان
+    return price * conversionRate; 
   };
 
   // Chart.js Configurations
   const chartLabels = filteredCoins?.map((item: any) =>
     convertToArabicNumerals(moment(item[0]).format("jYYYY/jMM/jDD"))
   );
-  const chartData = filteredCoins?.map((item: any) => convertPrice(item[1])); // Convert prices to selected currency
+  const chartData = filteredCoins?.map((item: any) => convertPrice(item[1])); 
   const chartJSData = {
     labels: chartLabels,
     datasets: [
@@ -112,21 +110,20 @@ export default function LinearChart({ coin }: LinearChartProps) {
       x: {
         ticks: {
           font: {
-            family: "YekanBakh", // Apply YekanBakh font
+            family: "YekanBakh", 
           },
         },
       },
       y: {
         ticks: {
           font: {
-            family: "YekanBakh", // Apply YekanBakh font
+            family: "YekanBakh", 
           },
         },
       },
     },
   };
 
-  // ECharts Configurations
   const echartsOption = {
     tooltip: {
       trigger: "axis",
@@ -138,13 +135,13 @@ export default function LinearChart({ coin }: LinearChartProps) {
         convertToArabicNumerals(moment(timestamp).format("jYYYY/jMM/jDD"))
       ),
       axisLabel: {
-        fontFamily: "YekanBakh", // Apply YekanBakh font
+        fontFamily: "YekanBakh", 
       },
     },
     yAxis: {
       scale: true,
       axisLabel: {
-        fontFamily: "YekanBakh", // Apply YekanBakh font
+        fontFamily: "YekanBakh", 
       },
     },
     series: [
@@ -155,7 +152,7 @@ export default function LinearChart({ coin }: LinearChartProps) {
       },
     ],
     textStyle: {
-      fontFamily: "YekanBakh", // Apply YekanBakh font globally
+      fontFamily: "YekanBakh", 
     },
   };
 
@@ -166,7 +163,6 @@ export default function LinearChart({ coin }: LinearChartProps) {
   return (
     <div style={{ fontFamily: "YekanBakh" }}>
       <div className="chart-toggle mb-4 flex">
-        {/* Button to toggle between دلار and تومان */}
         <button
           onClick={() => setCurrency(currency === 'دلار' ? 'تومان' : 'دلار')}
           className="px-4 py-2 bg-blue-500 text-white rounded-lg w-1/2"
@@ -174,7 +170,6 @@ export default function LinearChart({ coin }: LinearChartProps) {
           تغییر به {currency === 'دلار' ? 'تومان' : 'دلار'}
         </button>
 
-        {/* Coin icon and symbol */}
         <div className="flex items-center justify-end w-1/2">
           <img
             src={coin.icon}
@@ -185,7 +180,6 @@ export default function LinearChart({ coin }: LinearChartProps) {
         </div>
       </div>
 
-      {/* Chart rendering */}
       <div className="chart-container w-full">
         {showChartJS ? (
           <Line data={chartJSData} options={chartJSOptions} />
