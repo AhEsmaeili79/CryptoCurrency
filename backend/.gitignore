@@ -1,31 +1,48 @@
 # Python
 *.pyc
 *.pyo
-__pycache__/
 *.pyd
-
-# Virtual environment
-env/
-venv/
-Pipfile.lock
-
-# Databases
-*.db
+__pycache__/
+db.sqlite3
 *.sqlite3
-
-# Alembic
-alembic/versions/*
-
-# Logs
 *.log
-
-# IDEs and editors
-.vscode/
-.idea/
-
-# Mac OS
+*.pot
+*.mo
+*.swp
 .DS_Store
 
-# Miscellaneous
-*.sqlite
+# Django
+*.env
+*.env.*
+local_settings.py
 *.db
+*.log
+media/
+staticfiles/
+
+# Venv
+venv/
+.env/
+
+# Pipenv
+Pipfile.lock
+Pipfile
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+*.env
+*.swp
+.vscode/
+
+# React/Vite
+public/
+build/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
