@@ -1,63 +1,62 @@
-import axios from "axios";
+// src/api/authApi.ts
 
-const API_URL = "http://127.0.0.1:8000"; 
+const API_URL = "http://localhost:8000/api/users"; // Replace with your Django API URL
 
-
-const authApi = axios.create({
-  baseURL: API_URL, 
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-
+// Signup user
 export const signupUser = async (username: string, email: string, password: string) => {
   try {
-    const { data } = await authApi.post("/auth/signup/", { username, email, password });
-    return data;
-  } catch (error: any) {
-    const errorMessage = axios.isAxiosError(error) && error.response
-      ? error.response.data.detail
-      : "An unexpected error occurred";
-    console.error(errorMessage);
-    throw new Error(errorMessage);
-  }
-};
-
-export const loginUser = async (email: string, password: string) => {
-  try {
-    const response = await authApi.post("/auth/login/", {
-      email: email,       
-      password: password, 
+    const response = await fetch(`${API_URL}/register/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
     });
-    return response.data;
-  } catch (error: any) {
-    const errorMessage = axios.isAxiosError(error) && error.response
-      ? error.response.data.detail
-      : "An unexpected error occurred";
-    console.error(errorMessage);
-    throw new Error(errorMessage);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Signup failed");
+    }
+
+    const data = await response.json();
+    return data; // Contains 'access' and 'refresh' tokens
+  } catch (error) {
+    throw new Error(error.message || "Signup failed");
   }
 };
 
-export const logoutUser = async (token: string) => {
+// Login user
+export const loginUser = async (username: string, password: string) => {
   try {
-    const response = await authApi.post(
-      `/auth/logout/?token=${token}`,  
-      {},  
-      {
-        headers: {
-          "Content-Type": "application/json", 
-        },
-      }
-    );
-    return response.data; 
-  } catch (error: any) {
-    const errorMessage =
-      axios.isAxiosError(error) && error.response
-        ? error.response.data.detail
-        : "An unexpected error occurred during logout";
-    console.error("Logout error:", errorMessage);
-    throw new Error(errorMessage); 
+    const response = await fetch(`${API_URL}/login/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username, // Using username for login as per your requirement
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Login failed");
+    }
+
+    const data = await response.json();
+    return data; // Contains 'access' and 'refresh' tokens
+  } catch (error) {
+    throw new Error(error.message || "Login failed");
   }
+};
+
+
+export const logoutUser = () => {
+  // Simply remove the access token from localStorage to log the user out
+  localStorage.removeItem("access_token");
 };

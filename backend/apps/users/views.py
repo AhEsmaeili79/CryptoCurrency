@@ -11,7 +11,7 @@ from django.contrib.auth.hashers import make_password
 
 class RegisterView(APIView):
     """
-    Handles user registration.
+    Handles user registration and JWT token generation.
     """
     def post(self, request):
         data = request.data
@@ -31,8 +31,13 @@ class RegisterView(APIView):
         )
         user.save()
 
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # Generate JWT token for the newly created user
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }, status=status.HTTP_201_CREATED)
 
 
 class LoginView(APIView):
@@ -45,11 +50,13 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
 
         if user:
+            # Generate JWT tokens for authenticated user
             refresh = RefreshToken.for_user(user)
             return Response({
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
             }, status=status.HTTP_200_OK)
+
         return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
 
 

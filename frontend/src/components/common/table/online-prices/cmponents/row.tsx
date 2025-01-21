@@ -1,8 +1,15 @@
 import { BiSolidDownArrow, BiSolidUpArrow } from "react-icons/bi";
 import { TableRowPropsType } from "./type";
+import { useNavigate } from "react-router-dom";
 
 const TableRow = (props: TableRowPropsType) => {
-  const { icon, price, volume, priceChange1w, index } = props;
+  const {icon, price, volume, priceChange1w, index , cryptoname } = props;
+  const navigate = useNavigate(); // Initialize the navigate hook
+  const handleBuySellClick = () => {
+    navigate("/buy-sell", { state: { cryptoName: cryptoname } }); // Pass cryptoName as state
+  };
+
+
   return (
     <div
       className={`md:col-span-5 col-span-3 grid md:grid-cols-5 grid-cols-3 ${
@@ -32,8 +39,10 @@ const TableRow = (props: TableRowPropsType) => {
           {priceChange1w > 0 ? <BiSolidUpArrow /> : <BiSolidDownArrow />}
         </span>
       </span>
-      <button className="m-auto text-white bg-blue-500 transition-all hover:bg-blue-700 rounded-xl py-2 px-3 text-sm">
-        خرید / فروش
+      <button
+        onClick={handleBuySellClick} // Add the click handler
+        className="m-auto text-white bg-blue-500 transition-all hover:bg-blue-700 rounded-xl py-2 px-3 text-sm"
+      > خرید / فروش
       </button>
     </div>
   );

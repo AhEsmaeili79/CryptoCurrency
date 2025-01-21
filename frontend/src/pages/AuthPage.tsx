@@ -25,7 +25,7 @@ const AuthPage: React.FC = () => {
     try {
       const { username, email, password } = formData;
       const user = await signupUser(username, email, password);
-      setErrorMessage(user.detail); // Set the success message or error detail
+      setErrorMessage(""); // Clear any previous error messages
       // On successful signup, show the login section
       setIsLoginActive(true);
       const wrapper = document.querySelector(`.${styles.wrapper}`);
@@ -34,20 +34,18 @@ const AuthPage: React.FC = () => {
       setErrorMessage(error.message || "دوباره امتحان کنید!");
     }
   };
-  
-  
 
   // Handle login form submission
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { email, password } = formData;
-      const response = await loginUser(email, password);
-      setErrorMessage(response.detail); // Set the success message or error detail
+      const { username, password } = formData;
+      const response = await loginUser(username, password);
+      setErrorMessage(""); // Clear any previous error messages
       // Store the token and redirect user
-      localStorage.setItem("access_token", response.access_token);
+      localStorage.setItem("access_token", response.access); // Store JWT token in localStorage
 
-      navigate("/");
+      navigate("/"); // Redirect user to home page
     } catch (error: any) {
       setErrorMessage(error.message || "دوباره امتحان کنید!");
     }
@@ -85,71 +83,70 @@ const AuthPage: React.FC = () => {
 
   return (
     <div className={styles.authform}>
-    <section className={styles.wrapper}>
-      {/* Signup Form */}
-      <div className={`${styles.form} ${styles.signup}`}>
-        <header>ثبت نام</header>
-        <form onSubmit={handleSignupSubmit}>
-          <input
-            type="text"
-            placeholder="نام کاربری"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            required
-          />
-          <input
-            type="email"
-            placeholder="ایمیل"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="رمزعبور"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-          />
-          <div className={styles.checkbox}>
-            <input type="checkbox" id="signupCheck" />
-            <label htmlFor="signupCheck">همه قوانین و مقررات را می پذیرم.</label>
-          </div>
-          <input type="submit" value="ثبت نام" />
-        </form>
-        {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-      </div>
+      <section className={styles.wrapper}>
+        {/* Signup Form */}
+        <div className={`${styles.form} ${styles.signup}`}>
+          <header>ثبت نام</header>
+          <form onSubmit={handleSignupSubmit}>
+            <input
+              type="text"
+              placeholder="نام کاربری"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="email"
+              placeholder="ایمیل"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="password"
+              placeholder="رمزعبور"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+            />
+            <div className={styles.checkbox}>
+              <input type="checkbox" id="signupCheck" />
+              <label htmlFor="signupCheck">همه قوانین و مقررات را می پذیرم.</label>
+            </div>
+            <input type="submit" value="ثبت نام" />
+          </form>
+          {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+        </div>
 
-      {/* Login Form */}
-      <div className={`${styles.form} ${styles.login}`}>
-        <header>ورود</header>
-        <form onSubmit={handleLoginSubmit}>
-          <input
-            type="email"
-            placeholder="ایمیل"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="رمزعبور"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-          />
-          <a href="#">رمزعبور را فراموش کرده اید؟</a>
-          <input type="submit" value="ورود" />
-        </form>
-        {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-      </div>
-
-    </section>
+        {/* Login Form */}
+        <div className={`${styles.form} ${styles.login}`}>
+          <header>ورود</header>
+          <form onSubmit={handleLoginSubmit}>
+            <input
+              type="username"
+              placeholder="نام کاربری"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="password"
+              placeholder="رمزعبور"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+            />
+            <a href="#">رمزعبور را فراموش کرده اید؟</a>
+            <input type="submit" value="ورود" />
+          </form>
+          {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+        </div>
+      </section>
     </div>
   );
 };

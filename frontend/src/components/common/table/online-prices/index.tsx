@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 export const OnlinePricesTable = ({ limit = 4 }: { limit?: number }) => {
   const { data: fetchedCoins, error, isLoading } = useCoins(`/coins?&limit=${limit}`);
   const [coins, setCoins] = useState<any[]>([]);
-
   useEffect(() => {
     if (fetchedCoins?.result) {
       setCoins(fetchedCoins.result);
@@ -42,6 +41,7 @@ export const OnlinePricesTable = ({ limit = 4 }: { limit?: number }) => {
       </span>
       {coins.map((coin: any, index: number) => (
         <TableRow
+          cryptoname={coin.id}
           key={coin.price}
           icon={coin.icon}
           price={numberSeprator(Math.round(coin.price).toFixed(0))}
