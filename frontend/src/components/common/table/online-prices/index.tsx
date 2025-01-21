@@ -48,6 +48,7 @@ export const OnlinePricesTable = ({ limit = 4 }: { limit?: number }) => {
           volume={numberSeprator(Math.round(coin.volume).toFixed(0))}
           priceChange1w={coin.priceChange1w}
           index={index}
+          coins={coins}
         />
       ))}
       {isLoading && (

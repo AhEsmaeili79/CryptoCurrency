@@ -4,7 +4,7 @@ from .models import Wallet, CryptoCurrency
 class CryptoCurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = CryptoCurrency
-        fields = ['id', 'name', 'symbol', 'current_price']
+        fields = ['id', 'name', 'symbol']
 
 class WalletSerializer(serializers.ModelSerializer):
     cryptocurrency = CryptoCurrencySerializer()
