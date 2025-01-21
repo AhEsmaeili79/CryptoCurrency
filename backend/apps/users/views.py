@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate
 from .models import User
 from .serializers import UserSerializer
 from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class RegisterView(APIView):
@@ -81,6 +82,7 @@ class ProfileView(APIView):
     Retrieves or updates user profile details.
     """
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         user = request.user

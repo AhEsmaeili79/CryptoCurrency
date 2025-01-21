@@ -1,50 +1,79 @@
 import { img } from "@data";
 import { useEffect, useState } from "react";
-import { BsHeadphones, BsPersonFill } from "react-icons/bs";
+import { BsHeadphones, BsPersonFill ,BsFillBagDashFill } from "react-icons/bs";
 import { FaHeadphones, FaSignOutAlt } from "react-icons/fa";
 import { FaNewspaper } from "react-icons/fa6";
 import { HiHome, HiMenu } from "react-icons/hi";
 import { MdInsertChart } from "react-icons/md";
 import { PiPencilSimpleLineFill } from "react-icons/pi";
 import { Link, NavLink } from "react-router-dom";
-import { logoutUser } from "../api/authApi"; 
+import { logoutUser, refreshToken, getUserProfile } from "../api/authApi"; 
 
 export default function Navbar() {
   // Show menu state
   const [showMenu, setShowMenu] = useState<Boolean | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profile, setProfile] = useState(null); // Store user profile data
+  const [loading, setLoading] = useState(true); // Loading state for profile
 
   const showMenuHandler = () => {
     setShowMenu(true);
   };
 
- // Import the logout function
+  // Logout handler
+  const handleLogout = async () => {
+    const token = localStorage.getItem("access_token"); // Retrieve token from localStorage
+    if (!token) {
+      console.error("No token found in localStorage");
+      return;
+    }
 
-const handleLogout = async () => {
-  const token = localStorage.getItem("access_token"); // Retrieve token from localStorage
-  if (!token) {
-    console.error("No token found in localStorage");
-    return;
-  }
-
-  try {
-    await logoutUser(token); // Call the logout API
-    localStorage.removeItem("access_token");
-    window.location.href = "/"; // Redirect user to homepage or login page
-  } catch (error: any) {
-    console.error("Error during logout:", error.message);
-  }
-};
-  
+    try {
+      await logoutUser(token); // Call the logout API
+      localStorage.removeItem("access_token");
+      window.location.href = "/"; // Redirect user to homepage or login page
+    } catch (error: any) {
+      console.error("Error during logout:", error.message);
+    }
+  };
 
   const closeMenuHandler = () => {
     setShowMenu(false);
   };
 
   useEffect(() => {
-    // Check if the user is logged in by verifying the presence of a token
-    const token = localStorage.getItem("access_token");
-    setIsLoggedIn(!!token); // Set true if token exists, otherwise false
+    // Function to fetch profile data
+    const fetchProfileData = async () => {
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        console.error("No token found.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const profileData = await getUserProfile(token);
+        setProfile(profileData);
+        setIsLoggedIn(true);
+        setLoading(false);
+      } catch (error) {
+        if (error.message.includes("token")) {
+          // Token might be expired, refresh it
+          const newToken = await refreshToken();
+          localStorage.setItem("access_token", newToken);
+          const refreshedProfileData = await getUserProfile(newToken);
+          setProfile(refreshedProfileData);
+          setIsLoggedIn(true);
+        } else {
+          console.error("Error fetching profile:", error.message);
+          setIsLoggedIn(false);
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
   }, []);
 
   // menus list
@@ -126,33 +155,33 @@ const handleLogout = async () => {
               to="/dashboard"
               className="text-14 text-white bg-blue-primary py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
             >
+              <span className="lg:block hidden">داشبورد</span>
+              <BsFillBagDashFill size={20} />
+            </Link>
+            <Link
+              to="/profile"
+              className="text-14 text-white bg-green-500 py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
+            >
               <span className="lg:block hidden">پروفایل</span>
               <BsPersonFill size={20} />
             </Link>
             <button
-                onClick={handleLogout}
-                className="text-14 text-white bg-red-primary py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
-              >
-                <span className="lg:block hidden">خروج</span>
-                <FaSignOutAlt size={20} />
-              </button>
+              onClick={handleLogout}
+              className="text-14 text-white bg-red-primary py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
+            >
+              <span className="lg:block hidden">خروج</span>
+              <FaSignOutAlt size={20} />
+            </button>
           </>
         ) : (
-            <Link
-              to="auth"
-              className="text-14 text-white bg-blue-primary py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
-            >
-              <span className="lg:block hidden">ورود / ثبت نام</span>
-              <BsPersonFill size={20} />
-            </Link>
-        )}
-        <Link
-              to="/buy-sell"
-              className="text-14 text-white bg-emerald-500 py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
-            >
-              <span className="lg:block hidden">پشتیبانی</span>
-              <BsHeadphones size={20} />
+          <Link
+            to="auth"
+            className="text-14 text-white bg-blue-primary py-2 lg:px-4 px-2 rounded-lg flex items-center gap-2"
+          >
+            <span className="lg:block hidden">ورود / ثبت نام</span>
+            <BsPersonFill size={20} />
           </Link>
+        )}
       </div>
     </div>
   );

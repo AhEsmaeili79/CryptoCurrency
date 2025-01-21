@@ -1,15 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getUserProfile, updateUserProfile } from "../api/authApi";
 
 const UpdateProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState({
-    username: "JohnDoe1234",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1234567890",
-    address: "123 Main St, City, Country",
+    username: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
+
+  const [token] = useState(localStorage.getItem("access_token") || ""); // Replace with your auth token logic
+
+  useEffect(() => {
+    // Fetch user profile on mount
+    const fetchProfile = async () => {
+      try {
+        const data = await getUserProfile(token);
+        setProfileData({
+          username: data.username,
+          first_name: data.first_name,
+          last_name: data.last_name, 
+          email: data.email,
+          phone: data.phone_number || "",
+          password: "",
+          confirmPassword: "",
+        });
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, [token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,9 +44,21 @@ const UpdateProfilePage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Updated Profile Data:", profileData);
+    try {
+      const updatedData = {
+        first_name: profileData.first_name,
+        last_name: profileData.last_name,
+        email: profileData.email,
+        phone_number: profileData.phone,
+      };
+
+      const data = await updateUserProfile(token, updatedData);
+      console.log("Profile updated:", data);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    }
   };
 
   return (
@@ -30,8 +67,7 @@ const UpdateProfilePage: React.FC = () => {
         <h1 className="font-bold text-3xl text-blue-600 mb-6">بروزرسانی اطلاعات پروفایل</h1>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-           {/* Name */}
-           <div>
+          <div>
             <label className="block text-blue-600 mb-2" htmlFor="username">
               نام کاربری
             </label>
@@ -44,23 +80,37 @@ const UpdateProfilePage: React.FC = () => {
               disabled
             />
           </div>
-          {/* Name */}
+
           <div>
             <label className="block text-blue-600 mb-2" htmlFor="name">
               نام
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={profileData.name}
+              id="first_name"
+              name="first_name"
+              value={profileData.first_name}
               onChange={handleChange}
               className="w-full p-4 rounded-lg border border-gray-300 bg-blue-100"
               required
             />
           </div>
 
-          {/* Email */}
+          <div>
+            <label className="block text-blue-600 mb-2" htmlFor="name">
+              نام خانوادگی
+            </label>
+            <input
+              type="text"
+              id="last_name"
+              name="last_name"
+              value={profileData.last_name}
+              onChange={handleChange}
+              className="w-full p-4 rounded-lg border border-gray-300 bg-blue-100"
+              required
+            />
+          </div>
+
           <div>
             <label className="block text-blue-600 mb-2" htmlFor="email">
               ایمیل
@@ -70,12 +120,12 @@ const UpdateProfilePage: React.FC = () => {
               id="email"
               name="email"
               value={profileData.email}
+              onChange={handleChange}
               className="w-full p-4 rounded-lg border border-gray-300 bg-blue-100"
               required
             />
           </div>
 
-          {/* Phone */}
           <div>
             <label className="block text-blue-600 mb-2" htmlFor="phone">
               شماره تلفن
@@ -91,38 +141,6 @@ const UpdateProfilePage: React.FC = () => {
             />
           </div>
 
-
-          {/* Password */}
-          <div>
-            <label className="block text-blue-600 mb-2" htmlFor="password">
-              رمز عبور جدید
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={profileData.password}
-              onChange={handleChange}
-              className="w-full p-4 rounded-lg border border-gray-300 bg-blue-100"
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-blue-600 mb-2" htmlFor="confirmPassword">
-              تایید رمز عبور
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={profileData.confirmPassword}
-              onChange={handleChange}
-              className="w-full p-4 rounded-lg border border-gray-300 bg-blue-100"
-            />
-          </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full py-3 bg-blue-600 text-white rounded-lg font-bold"

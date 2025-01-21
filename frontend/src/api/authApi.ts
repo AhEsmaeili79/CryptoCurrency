@@ -60,3 +60,81 @@ export const logoutUser = () => {
   // Simply remove the access token from localStorage to log the user out
   localStorage.removeItem("access_token");
 };
+
+
+export const getUserProfile = async (token: string) => {
+  if (!token) {
+    throw new Error("Authentication token is missing.");
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/profile/`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.json();
+      throw new Error(errorMessage.detail || "Failed to fetch user profile.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    throw error;
+  }
+};
+
+
+// Update user profile
+export const updateUserProfile = async (token: string, profileData: any) => {
+  try {
+    const response = await fetch(`${API_URL}/profile/`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update profile.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};
+
+
+export const refreshToken = async () => {
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) {
+    throw new Error("Refresh token is missing. User must reauthenticate.");
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/token/refresh/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to refresh token.");
+    }
+
+    const data = await response.json();
+    localStorage.setItem("access_token", data.access);
+    return data.access;
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    throw error;
+  }
+};
