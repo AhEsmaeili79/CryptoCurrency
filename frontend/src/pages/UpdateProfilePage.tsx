@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getUserProfile, updateUserProfile } from "../api/authApi";
+import toast from "react-hot-toast";
+
 
 const UpdateProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState({
@@ -29,7 +31,7 @@ const UpdateProfilePage: React.FC = () => {
           confirmPassword: "",
         });
       } catch (error) {
-        console.error("Failed to fetch user profile:", error);
+        toast.error("متاسفانه خطایی رخ داده است.");
       }
     };
 
@@ -54,10 +56,10 @@ const UpdateProfilePage: React.FC = () => {
         phone_number: profileData.phone,
       };
 
-      const data = await updateUserProfile(token, updatedData);
-      console.log("Profile updated:", data);
+      await updateUserProfile(token, updatedData);
+      toast.success("با موفقیت انجام شد.");
     } catch (error) {
-      console.error("Failed to update profile:", error);
+      toast.error("متاسفانه خطایی رخ داده است.");
     }
   };
 

@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_jalali',
     'apps.users',
-    'apps.wallets',
     'apps.transactions',
 ]
 
