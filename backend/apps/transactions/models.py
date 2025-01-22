@@ -2,8 +2,8 @@ from django.db import models
 from apps.users.models import User
 
 class CryptoCurrency(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    symbol = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=200, unique=True)
+    symbol = models.CharField(max_length=30, unique=True)
 
     def __str__(self):
         return self.name

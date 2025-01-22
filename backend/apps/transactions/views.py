@@ -36,6 +36,21 @@ def get_crypto_price(crypto_symbol):
     logger.warning(f"Price not found for cryptocurrency: {crypto_symbol}")
     return None
 
+
+
+def initialize_wallet_crypto_balance(wallet, cryptocurrency):
+    # Get or create the WalletCrypto object
+    to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=cryptocurrency)
+
+    # If it's a new object and the balance is None, set it to 0
+    if created and to_wallet_crypto.balance is None:
+        to_wallet_crypto.balance = Decimal('0.0')
+        to_wallet_crypto.save()
+
+    return to_wallet_crypto
+
+
+
 class WalletView(APIView):
     def get(self, request):
         wallet = get_object_or_404(Wallet, user=request.user)
@@ -129,16 +144,15 @@ class SellCryptoView(APIView):
 
 class ExchangeCryptoView(APIView):
     def post(self, request):
-        # Extract data from request
         from_crypto_name = request.data.get("from_currency_id")
         to_crypto_name = request.data.get("to_currency_id")
         amount = request.data.get("amount")
+        
+        print(amount)
 
-        # Ensure that all fields are provided
         if not all([from_crypto_name, to_crypto_name, amount]):
             return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Fetch cryptocurrencies based on provided names
         try:
             from_currency = CryptoCurrency.objects.get(name=from_crypto_name)
             to_currency = CryptoCurrency.objects.get(name=to_crypto_name)
@@ -146,14 +160,15 @@ class ExchangeCryptoView(APIView):
             missing_currency = str(e).split(' ')[-1]
             return Response({"error": f"Cryptocurrency {missing_currency} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Fetch the user's wallet
         wallet = get_object_or_404(Wallet, user=request.user)
 
-        # Fetch the specific cryptocurrency in the user's wallet
         from_wallet_crypto = WalletCrypto.objects.filter(wallet=wallet, cryptocurrency=from_currency).first()
-        to_wallet_crypto, _ = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=to_currency)
+        
+        to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=to_currency)
+        
+        to_wallet_crypto = initialize_wallet_crypto_balance(wallet, to_currency)
 
-        # Check if the user has enough of the from_currency in their wallet
+            
         if not from_wallet_crypto:
             return Response(
                 {"error": f"You do not have any {from_currency.symbol} in your wallet.", "current_balance": 0},
@@ -167,27 +182,22 @@ class ExchangeCryptoView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Get the current prices of both cryptocurrencies
-        price_from = get_crypto_price(from_currency.symbol)  # Price of the 'from' currency
-        price_to = get_crypto_price(to_currency.symbol)  # Price of the 'to' currency
+        price_from = get_crypto_price(from_currency.symbol)  
+        price_to = get_crypto_price(to_currency.symbol)  
 
         if not price_from or not price_to:
             return Response({"error": "Could not fetch cryptocurrency prices."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Calculate how much of the "to" currency the user should receive
-        # Ensure to_amount is explicitly a Decimal
         to_amount = Decimal(amount) * Decimal(price_from) / Decimal(price_to)
 
-        # Perform the exchange: subtract from the 'from' currency and add to the 'to' currency
-        from_wallet_crypto.balance -= Decimal(amount)  # Ensure `amount` is a Decimal
-        to_wallet_crypto.balance += to_amount  # Ensure `to_amount` is a Decimal
+        from_wallet_crypto.balance -= Decimal(amount)  
+        to_wallet_crypto.balance += to_amount 
         from_wallet_crypto.save()
         to_wallet_crypto.save()
 
         # Log the exchange action
         logger.info(f"Exchanged {amount} {from_currency.symbol} to {to_currency.symbol}.")
 
-        # Create a new transaction record to track this exchange
         Transaction.objects.create(
             user=request.user,
             cryptocurrency=from_currency,
@@ -201,7 +211,6 @@ class ExchangeCryptoView(APIView):
             amount=to_amount
         )
 
-        # Return a success response with the updated balances
         return Response(
             {
                 "message": f"Successfully exchanged {amount} {from_currency.symbol} to {to_amount} {to_currency.symbol}.",

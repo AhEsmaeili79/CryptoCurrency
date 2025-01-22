@@ -8,7 +8,7 @@ from .models import User
 from .serializers import UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from apps.transactions.models import Wallet, CryptoCurrency, WalletCrypto
 
 class RegisterView(APIView):
     """
@@ -31,8 +31,17 @@ class RegisterView(APIView):
             password=make_password(data.get('password')),
         )
         user.save()
+        
+    
+        wallet = Wallet.objects.create(user=user)
 
-        # Generate JWT token for the newly created user
+        dogecoin = CryptoCurrency.objects.get(name="dogecoin")
+
+        wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=dogecoin)
+        
+        wallet_crypto.balance += 4000  
+        wallet_crypto.save()
+
         refresh = RefreshToken.for_user(user)
 
         return Response({

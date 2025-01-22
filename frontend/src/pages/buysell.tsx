@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import ChartComponent from "@utils/ChartComponent";
 import toast from "react-hot-toast";
 import { useCoins } from "@hooks/use-coins";
+import Select from "react-select";
 
 const BuyAndSellPage: React.FC = () => {
   const [activeForm, setActiveForm] = useState("buyForm");
@@ -12,13 +13,13 @@ const BuyAndSellPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(0);
   const [targetCrypto, setTargetCrypto] = useState<string>("");
+  const [coins, setCoins] = useState<any[]>([]);
 
   const location = useLocation();
   const { cryptoName, icon, price } = location.state || {};
   
-  const { data: fetchedCoins } = useCoins(`/coins?&limit=100`);
+  const { data: fetchedCoins } = useCoins(`/coins?&limit=250`);
 
-  const [coins, setCoins] = useState<any[]>([]);
   useEffect(() => {
     if (fetchedCoins?.result) {
       setCoins(fetchedCoins.result);
@@ -44,7 +45,7 @@ const BuyAndSellPage: React.FC = () => {
       }, {}));
       setLoading(false);
     } catch (err) {
-      setError("Failed to load wallet data.");
+      setError("برای نمایش کیف پول وارد شوید");
       setLoading(false);
     }
   };
@@ -57,7 +58,7 @@ const BuyAndSellPage: React.FC = () => {
         { cryptocurrency: cryptoName, amount },
         API_HEADERS
       );
-      alert("خرید با موفقیت انجام شد.");
+      toast.success("خرید با موفیت انجام شد");
       fetchWallet(); 
     } catch (error: any) {
       toast.error(error.response.data.error || "دوباره امتحان کنید!");
@@ -72,7 +73,7 @@ const BuyAndSellPage: React.FC = () => {
         { cryptocurrency: cryptoName, amount },
         API_HEADERS
       );
-      alert("فروش با موفقیت انجام شد!");
+      toast.success("فروش با موفقیت انجام شد");
       fetchWallet(); 
     } catch (error: any) {
       toast.error(error.response.data.error || "دوباره امتحان کنید!");
@@ -91,14 +92,23 @@ const BuyAndSellPage: React.FC = () => {
           amount,
         },
         API_HEADERS
-      );
-      alert("تبدیل با موفقیت انجام شد");
+      );      
+      toast.success("تبدیل با موفقیت انجام شد!");
       fetchWallet(); 
     } catch (error: any) {
       toast.error(error.response.data.error || "دوباره امتحان کنید!");
       console.error("Error details:", error);
     }
   };
+
+  const customStyles = {
+    menu: (provided: any) => ({
+      ...provided,
+      maxHeight: 200, // Set a maximum height for the dropdown
+      overflowY: "auto", // Enable vertical scrolling
+    }),
+  };
+
 
   useEffect(() => {
     fetchWallet();
@@ -222,21 +232,22 @@ const BuyAndSellPage: React.FC = () => {
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <select
-                value={targetCrypto}
-                onChange={(e) => setTargetCrypto(e.target.value)}
-                className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-                {coins && coins.length > 0 ? (
-                  coins.map((coin: any, index: number) => (
-                    <option key={index} value={coin.id}>
-                      {coin.id}
-                    </option>
-                  ))
-                ) : (
-                  <option disabled>Coins data is not available</option>
-                )}
-              </select>
+              <Select
+                  value={coins.find((coin) => coin.id === targetCrypto) 
+                    ? { value: targetCrypto, label: targetCrypto } 
+                    : null} // Ensure the value matches the options structure
+                  onChange={(selectedOption) => setTargetCrypto(selectedOption?.value || "")}
+                  options={coins.map((coin) => ({
+                    value: coin.id,
+                    label: coin.id,
+                  }))}
+                  placeholder="Search or select a cryptocurrency"
+                  className="mb-4"
+                  isSearchable
+                  styles={customStyles}
+                  menuPlacement="auto" // Ensures the dropdown opens up or down depending on available space
+                  noOptionsMessage={() => "No matching coins found"}
+                />
               <button
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 onClick={handleExchange}
