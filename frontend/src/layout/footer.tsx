@@ -42,7 +42,7 @@ export default function Footer() {
       <FooterLine />
       <span className="block text-sm text-center mt-4 font-light">
         کلیه حقوق مادی و معنوی این صفحه متعلق به{" "}
-        <span className="font-semiBold">ستایش کریمی</span> می‌باشد.
+        <span className="font-semiBold">ریحانه شاهی</span> می‌باشد.
       </span>
     </footer>
   );

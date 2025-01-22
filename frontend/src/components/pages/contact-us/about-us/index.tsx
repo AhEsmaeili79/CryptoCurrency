@@ -21,7 +21,7 @@ export default function AboutUs() {
             <span className="lg:text-2xl text-xl block font-bold">ایمیل:</span>
           </div>
           <p className="font-semiBold  mt-2 text-left">
-            <span className="block">setykarimi80@gmail.com</span>
+            <span className="block">Reyhaneshahi@gmail.com</span>
           </p>
         </div>
         <div className="phone_number flex gap-2 items-center justify-between">
@@ -33,7 +33,7 @@ export default function AboutUs() {
           </div>
           <p className="font-semiBold  mt-2 text-left">
             <a href="tel:09190979722" className="block text-left ltr">
-              +98 9190979722
+              +98 9121234567
             </a>
           </p>
         </div>
