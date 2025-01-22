@@ -7,7 +7,8 @@ from .models import Wallet, WalletCrypto, CryptoCurrency, Transaction
 from .serializers import WalletCryptoSerializer, TransactionSerializer
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
-import json
+from decimal import Decimal
+
 
 logger = logging.getLogger(__name__)
 
@@ -121,19 +122,17 @@ class SellCryptoView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         
+# Replace "-" with space in the currency names
+        # from_crypto_name = from_crypto_name.replace("-", " ") if from_crypto_name else from_crypto_name
+        # to_crypto_name = to_crypto_name.replace("-", " ") if to_crypto_name else to_crypto_name
+
+
 class ExchangeCryptoView(APIView):
     def post(self, request):
         # Extract data from request
         from_crypto_name = request.data.get("from_currency_id")
         to_crypto_name = request.data.get("to_currency_id")
         amount = request.data.get("amount")
-
-        cryptocurrency_from = CryptoCurrency.objects.get(name=from_crypto_name)
-        cryptocurrency_to = CryptoCurrency.objects.get(name=to_crypto_name)
-        
-        price_from = get_crypto_price(cryptocurrency_from.symbol)
-        price_to = get_crypto_price(cryptocurrency_to.symbol)
-        
 
         # Ensure that all fields are provided
         if not all([from_crypto_name, to_crypto_name, amount]):
@@ -176,11 +175,12 @@ class ExchangeCryptoView(APIView):
             return Response({"error": "Could not fetch cryptocurrency prices."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Calculate how much of the "to" currency the user should receive
-        to_amount = (amount * price_from) / price_to  # Amount of 'to' currency based on the exchange rate
+        # Ensure to_amount is explicitly a Decimal
+        to_amount = Decimal(amount) * Decimal(price_from) / Decimal(price_to)
 
         # Perform the exchange: subtract from the 'from' currency and add to the 'to' currency
-        from_wallet_crypto.balance -= amount
-        to_wallet_crypto.balance += to_amount
+        from_wallet_crypto.balance -= Decimal(amount)  # Ensure `amount` is a Decimal
+        to_wallet_crypto.balance += to_amount  # Ensure `to_amount` is a Decimal
         from_wallet_crypto.save()
         to_wallet_crypto.save()
 
@@ -192,7 +192,7 @@ class ExchangeCryptoView(APIView):
             user=request.user,
             cryptocurrency=from_currency,
             transaction_type='exchange',
-            amount=amount
+            amount=Decimal(amount)
         )
         Transaction.objects.create(
             user=request.user,

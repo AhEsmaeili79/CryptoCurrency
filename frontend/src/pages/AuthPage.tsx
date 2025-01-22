@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../assets/css/AuthPage.module.css"; // Import as a module
 import { signupUser, loginUser } from "../api/authApi"; // Import the API calls
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { FiEye, FiEyeOff } from "react-icons/fi"; // Import icons for show/hide password
 
 const AuthPage: React.FC = () => {
   const [isLoginActive, setIsLoginActive] = useState(false);
@@ -11,6 +12,7 @@ const AuthPage: React.FC = () => {
     password: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const navigate = useNavigate();
 
   // Handle input changes
@@ -104,14 +106,23 @@ const AuthPage: React.FC = () => {
               onChange={handleInputChange}
               required
             />
-            <input
-              type="password"
-              placeholder="رمزعبور"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="رمزعبور"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+              <button
+                type="button"
+                className={styles.eyeIcon}
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
             <div className={styles.checkbox}>
               <input type="checkbox" id="signupCheck" />
               <label htmlFor="signupCheck">همه قوانین و مقررات را می پذیرم.</label>
@@ -133,14 +144,23 @@ const AuthPage: React.FC = () => {
               onChange={handleInputChange}
               required
             />
-            <input
-              type="password"
-              placeholder="رمزعبور"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="رمزعبور"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+              <button
+                type="button"
+                className={styles.eyeIcon}
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
             <a href="#">رمزعبور را فراموش کرده اید؟</a>
             <input type="submit" value="ورود" />
           </form>

@@ -177,3 +177,56 @@
   .chart-container {
     font-family: 'YekanBakh', Arial, sans-serif; /* Default fallback fonts */
   }
+
+
+  .passwordWrapper {
+    position: relative;
+    width: 100%; /* Make the wrapper fill the entire input field */
+  }
+  
+  
+  .login input[type="password"],
+  .login input[type="text"] {
+    height: 60px; /* Same height as other inputs */
+    outline: none;
+    border: 1px rgb(151, 151, 151) solid ;
+    padding: 0 15px; /* Same padding as other inputs */
+    font-size: 16px;
+    font-weight: 400;
+    color: #333;
+    border-radius: 8px;
+    background: #fff;
+    width: 100%; /* Ensure full width for the input */
+  }
+
+  .signup input[type="password"],
+  .signup input[type="text"] {
+    height: 60px; /* Same height as other inputs */
+    outline: none;
+    border: none;
+    padding: 0 15px; /* Same padding as other inputs */
+    font-size: 16px;
+    font-weight: 400;
+    color: #333;
+    border-radius: 8px;
+    background: #fff;
+    width: 100%; /* Ensure full width for the input */
+  }
+  
+  
+  .eyeIcon {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #333; /* Icon color */
+  }
+  
+  .eyeIcon:hover {
+    opacity: 0.8;
+  }
+  
