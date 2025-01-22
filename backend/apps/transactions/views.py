@@ -108,7 +108,7 @@ class BuyCryptoView(APIView):
         if not price or not price_usd:
             return Response({"error": "نتواستیم قیمت رمزارزها را دریافت کنیم."}, status=status.HTTP_400_BAD_REQUEST)
 
-        wallet_crypto.balance -= Decimal(price_usd)
+        wallet_crypto.balance -= Decimal(price) * Decimal(amount)
         wallet_crypto.save()
 
         
@@ -167,6 +167,7 @@ class SellCryptoView(APIView):
                  "current_balance": from_wallet_crypto.balance},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=usd_currency)
         to_wallet_crypto = initialize_wallet_crypto_balance(wallet, usd_currency)
 
         price_from = get_crypto_price(from_currency.symbol)
