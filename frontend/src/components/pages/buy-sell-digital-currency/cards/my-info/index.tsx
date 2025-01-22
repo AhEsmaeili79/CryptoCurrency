@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getUserProfile } from "@api/authApi";
 import { fetchTransactions } from "@api/transactionApi";
-import userProfileImg from "@assets/images/items/images-modified.png";
+import userProfileImg from "@assets/images/items/userprofile.png";
 
 
 export default function MyInfoCard() {

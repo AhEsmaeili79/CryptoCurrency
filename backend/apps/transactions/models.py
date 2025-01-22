@@ -22,7 +22,7 @@ class WalletCrypto(models.Model):
     balance = models.DecimalField(max_digits=20, decimal_places=8, default=0.0)
 
     class Meta:
-        unique_together = ('wallet', 'cryptocurrency')  # Ensure each cryptocurrency is unique within a wallet
+        unique_together = ('wallet', 'cryptocurrency') 
 
     def __str__(self):
         return f"{self.wallet.user.username}'s {self.cryptocurrency.name}: {self.balance}"

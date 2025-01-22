@@ -26,8 +26,6 @@ class TransactionAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'cryptocurrency__name')
 
 
-
-# Register models with their respective admin classes
 admin.site.register(CryptoCurrency, CryptoCurrencyAdmin)
 admin.site.register(WalletCrypto, WalletCryptoAdmin)
 admin.site.register(Wallet, WalletAdmin)

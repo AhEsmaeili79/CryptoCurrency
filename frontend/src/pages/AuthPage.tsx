@@ -18,7 +18,6 @@ const AuthPage: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (token) {
-      // Redirect to homepage if the token is found
       navigate("/");
     }
   }, [navigate]);
@@ -44,7 +43,6 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  // Handle login form submission
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -59,7 +57,6 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  // Toggle between login and signup forms
   useEffect(() => {
     const wrapper = document.querySelector(`.${styles.wrapper}`);
     const signupHeader = document.querySelector(`.${styles.signup} header`);
@@ -82,7 +79,6 @@ const AuthPage: React.FC = () => {
     loginHeader?.addEventListener("click", handleLoginClick);
     signupHeader?.addEventListener("click", handleSignupClick);
 
-    // Cleanup event listeners
     return () => {
       loginHeader?.removeEventListener("click", handleLoginClick);
       signupHeader?.removeEventListener("click", handleSignupClick);

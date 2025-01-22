@@ -18,7 +18,6 @@ const UpdateProfilePage: React.FC = () => {
   const [token] = useState(localStorage.getItem("access_token") || ""); 
 
   useEffect(() => {
-    // Fetch user profile on mount
     const fetchProfile = async () => {
       try {
         const data = await getUserProfile(token);

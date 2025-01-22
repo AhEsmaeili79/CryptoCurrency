@@ -53,6 +53,6 @@ export async function fetchTransactions(token) {
     }
   
     const data = await response.json();
-    return data;  // Assuming this returns an array of transaction objects
+    return data;  
   }
   

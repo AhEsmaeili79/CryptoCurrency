@@ -21,7 +21,6 @@ class RegisterView(APIView):
         if User.objects.filter(email=data.get('email')).exists():
             return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create the user
         user = User(
             username=data.get('username'),
             email=data.get('email'),
@@ -60,7 +59,6 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
 
         if user:
-            # Generate JWT tokens for authenticated user
             refresh = RefreshToken.for_user(user)
             return Response({
                 "refresh": str(refresh),

@@ -1,5 +1,3 @@
-// src/api/walletApi.ts
-
 import axios from "axios";
 
 export const fetchWalletData = async (accessToken: string) => {
