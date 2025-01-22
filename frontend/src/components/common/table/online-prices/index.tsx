@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 export const OnlinePricesTable = ({ limit = 4 }: { limit?: number }) => {
   const { data: fetchedCoins, error, isLoading } = useCoins(`/coins?&limit=${limit}`);
+
+  console.log(fetchedCoins)
   const [coins, setCoins] = useState<any[]>([]);
   useEffect(() => {
     if (fetchedCoins?.result) {
