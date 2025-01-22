@@ -112,7 +112,7 @@ class BuyCryptoView(APIView):
         wallet_crypto.save()
 
         
-        wallet_crypto_crypto.balance += amount
+        wallet_crypto_crypto.balance += Decimal(amount)
         wallet_crypto_crypto.save()
 
         logger.info(f"خرید {amount} {cryptocurrency.symbol} به {amount} {usd_currency.symbol}.")
