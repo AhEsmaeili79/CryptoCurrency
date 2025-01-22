@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from decimal import Decimal
 from rest_framework import generics
-
+from rest_framework.permissions import IsAuthenticated
 
 logger = logging.getLogger(__name__)
 
@@ -51,19 +51,19 @@ def initialize_wallet_crypto_balance(wallet, cryptocurrency):
 
 
 class TransactionListView(generics.ListCreateAPIView):
-    queryset = Transaction.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = TransactionSerializer
 
     def get_queryset(self):
         """
-        Optionally restricts the returned transactions to the current user's,
-        by filtering against a `user` query parameter in the URL.
+        Restricts the returned transactions to the current user's,
+        by filtering against the user field.
         """
-        queryset = self.queryset
         user = self.request.user
         if user.is_authenticated:
-            queryset = queryset.filter(user=user)
-        return queryset
+            return Transaction.objects.filter(user=user)
+        return Transaction.objects.none()  
+
 
 class WalletView(APIView):
     def get(self, request):
@@ -72,6 +72,7 @@ class WalletView(APIView):
         logger.info(f"Fetched wallet data for user: {request.user}")
         serializer = WalletCryptoSerializer(cryptos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
     
     
 class BuyCryptoView(APIView):
@@ -119,8 +120,6 @@ class SellCryptoView(APIView):
         from_crypto_name = request.data.get("from_currency_id")
         to_crypto_name = request.data.get("to_currency_id")
         amount = request.data.get("amount")
-        
-        print(amount)
 
         if not all([from_crypto_name, to_crypto_name, amount]):
             return Response({"error": "تمام فیلدها الزامی هستند."}, status=status.HTTP_400_BAD_REQUEST)
@@ -201,8 +200,6 @@ class ExchangeCryptoView(APIView):
         to_crypto_name = request.data.get("to_currency_id")
         amount = request.data.get("amount")
         
-        print(amount)
-
         if not all([from_crypto_name, to_crypto_name, amount]):
             return Response({"error": "تمام فیلدها الزامی هستند."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -253,12 +250,6 @@ class ExchangeCryptoView(APIView):
         # Log the exchange action
         logger.info(f"تبدیل {amount} {from_currency.symbol} به {to_currency.symbol}.")
 
-        Transaction.objects.create(
-            user=request.user,
-            cryptocurrency=from_currency,
-            transaction_type='exchange',
-            amount=Decimal(amount)
-        )
         Transaction.objects.create(
             user=request.user,
             cryptocurrency=to_currency,

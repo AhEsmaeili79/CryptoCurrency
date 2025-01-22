@@ -16,10 +16,15 @@ class WalletCryptoSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    cryptocurrency_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Transaction
-        fields = ['id', 'user', 'cryptocurrency', 'transaction_type', 'amount', 'created_at']
+        fields = ['id', 'user', 'cryptocurrency', 'cryptocurrency_name', 'transaction_type', 'amount', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+    def get_cryptocurrency_name(self, obj):
+        return obj.cryptocurrency.name  # Assuming 'name' is the field in the Cryptocurrency model
 
     def validate(self, data):
         wallet = Wallet.objects.get(user=data['user'])
