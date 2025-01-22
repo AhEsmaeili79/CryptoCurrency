@@ -151,42 +151,44 @@ class ExchangeCryptoView(APIView):
         print(amount)
 
         if not all([from_crypto_name, to_crypto_name, amount]):
-            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "تمام فیلدها الزامی هستند."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             from_currency = CryptoCurrency.objects.get(name=from_crypto_name)
             to_currency = CryptoCurrency.objects.get(name=to_crypto_name)
         except ObjectDoesNotExist as e:
             missing_currency = str(e).split(' ')[-1]
-            return Response({"error": f"Cryptocurrency {missing_currency} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"رمز ارز {missing_currency} وجود ندارد."}, status=status.HTTP_400_BAD_REQUEST)
 
         wallet = get_object_or_404(Wallet, user=request.user)
 
         from_wallet_crypto = WalletCrypto.objects.filter(wallet=wallet, cryptocurrency=from_currency).first()
         
-        to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=to_currency)
-        
-        to_wallet_crypto = initialize_wallet_crypto_balance(wallet, to_currency)
-
+        if not from_wallet_crypto or from_wallet_crypto.balance < amount:
+            if not from_wallet_crypto:
+                return Response(
+                    {"error": f"شما هیچ {from_currency.symbol} در کیف پول خود ندارید.", "current_balance": 0},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
-        if not from_wallet_crypto:
             return Response(
-                {"error": f"You do not have any {from_currency.symbol} in your wallet.", "current_balance": 0},
+                {"error": f"موجودی کافی برای تبدیل {amount} {from_currency.symbol} وجود ندارد.",
+                "current_balance": from_wallet_crypto.balance},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if from_wallet_crypto.balance < amount:
-            return Response(
-                {"error": f"Insufficient balance to exchange {amount} {from_currency.symbol}.",
-                 "current_balance": from_wallet_crypto.balance},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+
+        to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=to_currency)
+        # If both conditions are false, initialize the 'to_wallet_crypto'
+        to_wallet_crypto = initialize_wallet_crypto_balance(wallet, to_currency)
+                    
 
         price_from = get_crypto_price(from_currency.symbol)  
         price_to = get_crypto_price(to_currency.symbol)  
+        
 
         if not price_from or not price_to:
-            return Response({"error": "Could not fetch cryptocurrency prices."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "نتواستیم قیمت رمزارزها را دریافت کنیم."}, status=status.HTTP_400_BAD_REQUEST)
 
         to_amount = Decimal(amount) * Decimal(price_from) / Decimal(price_to)
 
@@ -196,7 +198,7 @@ class ExchangeCryptoView(APIView):
         to_wallet_crypto.save()
 
         # Log the exchange action
-        logger.info(f"Exchanged {amount} {from_currency.symbol} to {to_currency.symbol}.")
+        logger.info(f"تبدیل {amount} {from_currency.symbol} به {to_currency.symbol}.")
 
         Transaction.objects.create(
             user=request.user,
@@ -213,7 +215,7 @@ class ExchangeCryptoView(APIView):
 
         return Response(
             {
-                "message": f"Successfully exchanged {amount} {from_currency.symbol} to {to_amount} {to_currency.symbol}.",
+                "message": f"تبدیل {amount} {from_currency.symbol} به {to_amount} {to_currency.symbol} با موفقیت انجام شد.",
                 "from_currency_balance": from_wallet_crypto.balance,
                 "to_currency_balance": to_wallet_crypto.balance,
             },

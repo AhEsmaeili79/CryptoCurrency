@@ -16,7 +16,7 @@ const BuyAndSellPage: React.FC = () => {
   const [coins, setCoins] = useState<any[]>([]);
 
   const location = useLocation();
-  const { cryptoName, icon, price } = location.state || {};
+  const { cryptoName, icon, price, Symbol } = location.state || {};
   
   const { data: fetchedCoins } = useCoins(`/coins?&limit=250`);
 
@@ -124,7 +124,7 @@ const BuyAndSellPage: React.FC = () => {
             className="md:w-16 w-12 md:h-16 h-12 rounded-full border-4 border-blue-600"
           />
         </div>
-        <h3 className="text-3xl text-blue-700 font-semibold mb-6">{cryptoName}</h3>
+        <h3 className="text-3xl text-blue-700 font-semibold mb-6">({Symbol}){cryptoName}</h3>
 
         <div className="mb-8">
           <ChartComponent price={price} cryptoname={cryptoName} />

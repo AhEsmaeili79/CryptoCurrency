@@ -3,13 +3,12 @@ import { TableRowPropsType } from "./type";
 import { useNavigate } from "react-router-dom";
 
 const TableRow = (props: TableRowPropsType) => {
-  const {icon, price, volume, priceChange1w, index , cryptoname, coins } = props;
+  const {icon, price, volume, priceChange1w, index , cryptoname, coins, symbol } = props;
   const navigate = useNavigate(); // Initialize the navigate hook
 
   const handleBuySellClick = () => {
-    navigate("/buy-sell", { state: { cryptoName: cryptoname, icon: icon, price:price, coins:coins } }); // Pass cryptoName as state
+    navigate("/buy-sell", { state: { cryptoName: cryptoname, icon: icon, price:price, coins:coins, Symbol:symbol } }); // Pass cryptoName as state
   };
-
 
   return (
     <div
