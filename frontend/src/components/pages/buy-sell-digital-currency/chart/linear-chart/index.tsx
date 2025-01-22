@@ -16,7 +16,6 @@ import {
   Legend,
 } from "chart.js";
 
-// Register necessary chart components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface LinearChartProps {

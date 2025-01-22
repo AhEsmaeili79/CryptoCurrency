@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionItem from "./item";
+import { fetchTransactions } from "@api/transactionApi";
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -8,26 +9,19 @@ export default function Transactions() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    async function fetchTransactions() {
+    async function getTransactions() {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/transactions/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch transactions");
-        }
-        const data = await response.json();
-        setTransactions(data);
+        setLoading(true); // Ensure loading is true while fetching
+        const data = await fetchTransactions(token); // Use the imported fetchTransactions function
+        setTransactions(data); // Set the transactions once data is fetched
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Ensure loading is false after fetching completes
       }
     }
 
-    fetchTransactions();
+    getTransactions(); // Call the function to fetch transactions
   }, []);
 
   if (loading) {

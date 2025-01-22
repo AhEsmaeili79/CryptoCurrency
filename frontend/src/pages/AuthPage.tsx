@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import styles from "../assets/css/AuthPage.module.css"; // Import as a module
-import { signupUser, loginUser } from "../api/authApi"; // Import the API calls
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import { FiEye, FiEyeOff } from "react-icons/fi"; // Import icons for show/hide password
+import styles from "@assets/css/AuthPage.module.css"; 
+import { signupUser, loginUser } from "@api/authApi"; 
+import { useNavigate } from "react-router-dom"; 
+import { FiEye, FiEyeOff } from "react-icons/fi"; 
 
 const AuthPage: React.FC = () => {
   const [isLoginActive, setIsLoginActive] = useState(false);
@@ -12,7 +12,7 @@ const AuthPage: React.FC = () => {
     password: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false); 
   const navigate = useNavigate();
 
   // Handle input changes
@@ -31,7 +31,7 @@ const AuthPage: React.FC = () => {
       // On successful signup, show the login section
       setIsLoginActive(true);
       const wrapper = document.querySelector(`.${styles.wrapper}`);
-      wrapper?.classList.add(styles.active); // Add the 'active' class to transition to login form
+      wrapper?.classList.add(styles.active); 
     } catch (error: any) {
       setErrorMessage(error.message || "دوباره امتحان کنید!");
     }
@@ -43,11 +43,10 @@ const AuthPage: React.FC = () => {
     try {
       const { username, password } = formData;
       const response = await loginUser(username, password);
-      setErrorMessage(""); // Clear any previous error messages
-      // Store the token and redirect user
-      localStorage.setItem("access_token", response.access); // Store JWT token in localStorage
+      setErrorMessage(""); 
+      localStorage.setItem("access_token", response.access); 
 
-      navigate("/"); // Redirect user to home page
+      navigate("/"); 
     } catch (error: any) {
       setErrorMessage(error.message || "دوباره امتحان کنید!");
     }

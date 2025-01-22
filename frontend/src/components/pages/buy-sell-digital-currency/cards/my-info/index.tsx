@@ -1,7 +1,10 @@
-import { useState, useEffect } from "react";
-import { getUserProfile } from "../../../../../api/authApi";
-import userProfileImg from "../../../../../assets/images/items/images-modified.png";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getUserProfile } from "@api/authApi";
+import { fetchTransactions } from "@api/transactionApi";
+import userProfileImg from "@assets/images/items/images-modified.png";
+
+
 export default function MyInfoCard() {
   const [profileData, setProfileData] = useState({
     first_name: "",
@@ -11,10 +14,13 @@ export default function MyInfoCard() {
     phone: "",
   });
 
-  const [token] = useState(localStorage.getItem("access_token") || ""); // Replace with your auth token logic
+  const [transactions, setTransactions] = useState([]);
+  const [buyCount, setBuyCount] = useState(0);
+  const [sellCount, setSellCount] = useState(0);
+
+  const [token] = useState(localStorage.getItem("access_token"));
 
   useEffect(() => {
-    // Fetch user profile on mount
     const fetchProfile = async () => {
       try {
         const data = await getUserProfile(token);
@@ -30,8 +36,24 @@ export default function MyInfoCard() {
       }
     };
 
+    const fetchTransactionsData = async () => {
+      try {
+        const transactionData = await fetchTransactions(token); 
+        setTransactions(transactionData);
+
+        const buyTransactions = transactionData.filter(transaction => transaction.transaction_type === "buy");  
+        const sellTransactions = transactionData.filter(transaction => transaction.transaction_type === "sell");
+        
+        setBuyCount(buyTransactions.length);
+        setSellCount(sellTransactions.length);
+      } catch (error) {
+        console.error("Failed to fetch transactions:", error);
+      }
+    };
+
     if (token) {
       fetchProfile();
+      fetchTransactionsData();
     }
   }, [token]);
 
@@ -42,18 +64,20 @@ export default function MyInfoCard() {
     },
     {
       title: "تعداد خرید",
-      value: "200",
+      value: buyCount.toString(),  
     },
     {
       title: "تعداد فروش",
-      value: "504",
+      value: sellCount.toString(),  
     },
   ];
 
   return (
     <div className="bg-[#CCE0EB] p-6 rounded-2xl grid grid-cols-3 gap-2 items-center h-fit">
       <Link to="/profile">
-          <div className="w-16 h-17  rounded-full"><img src={userProfileImg} alt="User Profile" /></div>
+        <div className="w-16 h-17 rounded-full">
+          <img src={userProfileImg} alt="User Profile" />
+        </div>
       </Link>
       <div className="col-span-2 flex flex-col gap-2">
         {my_data.map(({ title, value }) => (

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useLocation } from "react-router-dom";
+import Select from "react-select";
+import axios from "axios";
 import ChartComponent from "@utils/ChartComponent";
 import toast from "react-hot-toast";
 import { useCoins } from "@hooks/use-coins";
-import Select from "react-select";
 
 const BuyAndSellPage: React.FC = () => {
   const [activeForm, setActiveForm] = useState("buyForm");

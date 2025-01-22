@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 
 const TableRow = (props: TableRowPropsType) => {
   const {icon, price, volume, priceChange1w, index , cryptoname, coins, symbol } = props;
-  const navigate = useNavigate(); // Initialize the navigate hook
+  const navigate = useNavigate(); 
 
   const handleBuySellClick = () => {
-    navigate("/buy-sell", { state: { cryptoName: cryptoname, icon: icon, price:price, coins:coins, Symbol:symbol } }); // Pass cryptoName as state
+    navigate("/buy-sell", { state: { cryptoName: cryptoname, icon: icon, price:price, coins:coins, Symbol:symbol } }); 
   };
 
   return (
@@ -40,7 +40,7 @@ const TableRow = (props: TableRowPropsType) => {
         </span>
       </span>
       <button
-        onClick={handleBuySellClick} // Add the click handler
+        onClick={handleBuySellClick} 
         className="m-auto text-white bg-blue-500 transition-all hover:bg-blue-700 rounded-xl py-2 px-3 text-sm"
       > خرید / فروش
       </button>

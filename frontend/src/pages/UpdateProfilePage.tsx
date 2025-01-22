@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { getUserProfile, updateUserProfile } from "../api/authApi";
 import toast from "react-hot-toast";
+import { getUserProfile, updateUserProfile } from "@api/authApi";
+
 
 
 const UpdateProfilePage: React.FC = () => {
@@ -14,7 +15,7 @@ const UpdateProfilePage: React.FC = () => {
     confirmPassword: "",
   });
 
-  const [token] = useState(localStorage.getItem("access_token") || ""); // Replace with your auth token logic
+  const [token] = useState(localStorage.getItem("access_token") || ""); 
 
   useEffect(() => {
     // Fetch user profile on mount

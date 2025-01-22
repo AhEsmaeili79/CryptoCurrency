@@ -7,7 +7,7 @@ export default function WholeChart() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCoin, setSelectedCoin] = useState(null);
 
-  // Set Bitcoin as the default selected coin once the data is fetched
+
   useEffect(() => {
     if (fetchedCoins && fetchedCoins.result) {
       const bitcoin = fetchedCoins.result.find(coin => coin.symbol.toLowerCase() === 'btc');
@@ -25,13 +25,11 @@ export default function WholeChart() {
     );
   }
 
-  // Filter coins based on the search query
   const filteredCoins = fetchedCoins.result.filter((coin) =>
     coin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     coin.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Handle coin selection
   const handleCoinSelection = (coin) => {
     setSelectedCoin(coin);
   };
