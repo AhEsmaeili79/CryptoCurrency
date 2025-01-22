@@ -15,6 +15,8 @@ const BuyAndSellPage: React.FC = () => {
   const [targetCrypto, setTargetCrypto] = useState<string>("");
   const [coins, setCoins] = useState<any[]>([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const location = useLocation();
   const { cryptoName, icon, price, Symbol } = location.state || {};
   
@@ -34,7 +36,6 @@ const BuyAndSellPage: React.FC = () => {
     },
   };
 
-  // Fetch Wallet Data
   const fetchWallet = async () => {
     try {
       setLoading(true);
@@ -50,21 +51,34 @@ const BuyAndSellPage: React.FC = () => {
     }
   };
 
-  // Buy Cryptocurrency
-  const handleBuy = async () => {
-    try {
-      await axios.post(
-        "http://127.0.0.1:8000/api/buy/",
-        { cryptocurrency: cryptoName, amount },
-        API_HEADERS
-      );
-      toast.success("خرید با موفیت انجام شد");
-      fetchWallet(); 
-    } catch (error: any) {
-      toast.error(error.response.data.error || "دوباره امتحان کنید!");
-      console.error("Error details:", error);
-    }
-  };
+
+      const handleBuy = async () => {
+        if (amount <= 0) {
+          toast.error("مقدار خرید باید بزرگتر از صفر باشد.");
+          return;
+        }
+
+        try {
+          setIsLoading(true);  
+
+          const response = await axios.post(
+            "http://127.0.0.1:8000/api/buy/",
+            { cryptocurrency: cryptoName, amount },
+            API_HEADERS
+          );
+
+          toast.success("خرید با موفقیت انجام شد");
+          fetchWallet(); 
+          setAmount(0);  
+        } catch (error: any) {
+          
+          toast.error(error.response?.data?.error || "دوباره امتحان کنید!");
+          console.error("Error details:", error);
+        } finally {
+          setIsLoading(false);  
+        }
+      };
+
 
   const handleSell = async () => {
     try {
@@ -80,8 +94,8 @@ const BuyAndSellPage: React.FC = () => {
       console.error("Error details:", error);
     }
   };
+  
 
-  // Exchange Cryptocurrency
   const handleExchange = async () => {
     try {
       await axios.post(
@@ -104,8 +118,8 @@ const BuyAndSellPage: React.FC = () => {
   const customStyles = {
     menu: (provided: any) => ({
       ...provided,
-      maxHeight: 200, // Set a maximum height for the dropdown
-      overflowY: "auto", // Enable vertical scrolling
+      maxHeight: 200, 
+      overflowY: "auto", 
     }),
   };
 
@@ -186,26 +200,22 @@ const BuyAndSellPage: React.FC = () => {
         <div className="forms">
           {activeForm === "buyForm" && (
             <div className="form p-6 border border-gray-300 rounded-lg shadow-lg bg-gray-50">
-              <h2 className="font-bold text-xl text-blue-600 mb-4">خرید {cryptoName}</h2>
-              <input
-                type="number"
-                placeholder="مبلغ خود را وارد کنید"
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-              <select className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                <option value="Iranian Rial">ریال</option>
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-              </select>
-              <button
-                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                onClick={handleBuy}
-              >
-                خرید
-              </button>
-            </div>
+            <h2 className="font-bold text-xl text-blue-600 mb-4">خرید {cryptoName}</h2>
+            <input
+              type="number"
+              placeholder="مبلغ خود را وارد کنید"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+            <button
+              className={`w-full py-3 rounded-lg text-white ${isLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              onClick={handleBuy}
+              disabled={isLoading} 
+            >
+              {isLoading ? 'در حال خرید...' : 'خرید'}
+            </button>
+          </div>
           )}
 
           {activeForm === "sellForm" && (
@@ -218,11 +228,6 @@ const BuyAndSellPage: React.FC = () => {
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <select className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                <option value="Iranian Rial">ریال</option>
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-              </select>
               <button
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 onClick={handleSell}
@@ -245,7 +250,7 @@ const BuyAndSellPage: React.FC = () => {
               <Select
                   value={coins.find((coin) => coin.id === targetCrypto) 
                     ? { value: targetCrypto, label: targetCrypto } 
-                    : null} // Ensure the value matches the options structure
+                    : null} 
                   onChange={(selectedOption) => setTargetCrypto(selectedOption?.value || "")}
                   options={coins.map((coin) => ({
                     value: coin.id,
@@ -255,7 +260,7 @@ const BuyAndSellPage: React.FC = () => {
                   className="mb-4"
                   isSearchable
                   styles={customStyles}
-                  menuPlacement="auto" // Ensures the dropdown opens up or down depending on available space
+                  menuPlacement="auto" 
                   noOptionsMessage={() => "No matching coins found"}
                 />
               <button

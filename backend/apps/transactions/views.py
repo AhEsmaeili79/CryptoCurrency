@@ -39,10 +39,8 @@ def get_crypto_price(crypto_symbol):
 
 
 def initialize_wallet_crypto_balance(wallet, cryptocurrency):
-    # Get or create the WalletCrypto object
     to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=cryptocurrency)
 
-    # If it's a new object and the balance is None, set it to 0
     if created and to_wallet_crypto.balance is None:
         to_wallet_crypto.balance = Decimal('0.0')
         to_wallet_crypto.save()
@@ -55,14 +53,10 @@ class TransactionListView(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer
 
     def get_queryset(self):
-        """
-        Restricts the returned transactions to the current user's,
-        by filtering against the user field.
-        """
         user = self.request.user
         if user.is_authenticated:
-            return Transaction.objects.filter(user=user)
-        return Transaction.objects.none()  
+            return Transaction.objects.filter(user=user).order_by('-created_at')  # Order by created_at descending
+        return Transaction.objects.none()
 
 
 class WalletView(APIView):
@@ -74,102 +68,122 @@ class WalletView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     
-    
 class BuyCryptoView(APIView):
     def post(self, request):
         crypto_name = request.data.get("cryptocurrency")
         amount = request.data.get("amount")
 
-        if not crypto_name or not amount:
-            return Response({"error": "Cryptocurrency name and amount are required."}, status=status.HTTP_400_BAD_REQUEST)
+        if not all([crypto_name, amount]):
+            return Response({"error": "تمام فیلدها الزامی هستند."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             cryptocurrency = CryptoCurrency.objects.get(name=crypto_name)
+            usd_currency = CryptoCurrency.objects.get(name="MONEY_USD")
         except ObjectDoesNotExist:
-            return Response({"error": f"Cryptocurrency {crypto_name} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"رمز ارز {crypto_name} یا کیف پول دلاری وجود ندارد."}, status=status.HTTP_400_BAD_REQUEST)
 
-        price = get_crypto_price(cryptocurrency.symbol)
-        if price is None:
-            return Response({"error": f"Unable to fetch the price for {crypto_name}."}, status=status.HTTP_400_BAD_REQUEST)
+        wallet = get_object_or_404(Wallet, user=request.user)
 
-        data = {
-            "cryptocurrency": cryptocurrency.id,
-            "amount": amount,
-            "user": request.user.id,
-            "price": price,  
-        }
-        
-        serializer = TransactionSerializer(data=data)
-        if serializer.is_valid():
-            transaction = serializer.save()
-            wallet = Wallet.objects.get(user=transaction.user)
-            wallet_crypto, _ = WalletCrypto.objects.get_or_create(
-                wallet=wallet, cryptocurrency=transaction.cryptocurrency
+        wallet_crypto = WalletCrypto.objects.filter(wallet=wallet, cryptocurrency=usd_currency).first()
+
+        if not wallet_crypto or wallet_crypto.balance < Decimal(amount):
+            if not wallet_crypto:
+                return Response(
+                    {"error": f"شما هیچ {usd_currency.symbol} در کیف پول خود ندارید.", "current_balance": 0},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            return Response(
+                {"error": f"موجودی کافی برای خرید {crypto_name} با {amount} {usd_currency.symbol} وجود ندارد.",
+                 "current_balance": wallet_crypto.balance},
+                status=status.HTTP_400_BAD_REQUEST
             )
-            wallet_crypto.balance += transaction.amount
-            wallet_crypto.save()
+        
+        wallet_crypto_crypto = initialize_wallet_crypto_balance(wallet, cryptocurrency)
+        wallet_crypto_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=cryptocurrency)
+                    
+        price = get_crypto_price(cryptocurrency.symbol)
+        price_usd = get_crypto_price("USDT") 
 
-            logger.info(f"Crypto bought successfully: {transaction.amount} {crypto_name} for {price} each.")
-            return Response({"message": "Crypto bought successfully!"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not price or not price_usd:
+            return Response({"error": "نتواستیم قیمت رمزارزها را دریافت کنیم."}, status=status.HTTP_400_BAD_REQUEST)
+
+        wallet_crypto.balance -= Decimal(price_usd)
+        wallet_crypto.save()
+
+        
+        wallet_crypto_crypto.balance += amount
+        wallet_crypto_crypto.save()
+
+        logger.info(f"خرید {amount} {cryptocurrency.symbol} به {amount} {usd_currency.symbol}.")
+
+        Transaction.objects.create(
+            user=request.user,
+            cryptocurrency=cryptocurrency,
+            transaction_type='buy',
+            amount=amount
+        )
+
+        return Response(
+            {
+                "message": f"خرید {amount} {cryptocurrency.symbol} با {amount} {usd_currency.symbol} با موفقیت انجام شد.",
+                "usd_balance": wallet_crypto.balance,
+                "crypto_balance": wallet_crypto_crypto.balance,
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
 
 
 
 class SellCryptoView(APIView):
     def post(self, request):
-        from_crypto_name = request.data.get("from_currency_id")
-        to_crypto_name = request.data.get("to_currency_id")
+        from_crypto_name = request.data.get("cryptocurrency")
         amount = request.data.get("amount")
 
-        if not all([from_crypto_name, to_crypto_name, amount]):
+        if not all([from_crypto_name, amount]):
             return Response({"error": "تمام فیلدها الزامی هستند."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             from_currency = CryptoCurrency.objects.get(name=from_crypto_name)
-            to_currency = CryptoCurrency.objects.get(name=to_crypto_name)
+            usd_currency = CryptoCurrency.objects.get(name="MONEY_USD")
         except ObjectDoesNotExist as e:
-            missing_currency = str(e).split(' ')[-1]
-            return Response({"error": f"رمز ارز {missing_currency} وجود ندارد."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"رمز ارز {from_currency} وجود ندارد."}, status=status.HTTP_400_BAD_REQUEST)
 
         wallet = get_object_or_404(Wallet, user=request.user)
 
         from_wallet_crypto = WalletCrypto.objects.filter(wallet=wallet, cryptocurrency=from_currency).first()
-        
+
         if not from_wallet_crypto or from_wallet_crypto.balance < amount:
             if not from_wallet_crypto:
                 return Response(
                     {"error": f"شما هیچ {from_currency.symbol} در کیف پول خود ندارید.", "current_balance": 0},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             return Response(
                 {"error": f"موجودی کافی برای تبدیل {amount} {from_currency.symbol} وجود ندارد.",
-                "current_balance": from_wallet_crypto.balance},
+                 "current_balance": from_wallet_crypto.balance},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        to_wallet_crypto = initialize_wallet_crypto_balance(wallet, usd_currency)
 
+        price_from = get_crypto_price(from_currency.symbol)
+        price_usd = get_crypto_price("USDT")  
 
-        to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=to_currency)
-        # If both conditions are false, initialize the 'to_wallet_crypto'
-        to_wallet_crypto = initialize_wallet_crypto_balance(wallet, to_currency)
-                    
-
-        price_from = get_crypto_price(from_currency.symbol)  
-        price_to = get_crypto_price(to_currency.symbol)  
-        
-
-        if not price_from or not price_to:
+        if not price_from or not price_usd:
             return Response({"error": "نتواستیم قیمت رمزارزها را دریافت کنیم."}, status=status.HTTP_400_BAD_REQUEST)
 
-        to_amount = Decimal(amount) * Decimal(price_from) / Decimal(price_to)
+        usd_amount = Decimal(amount) * Decimal(price_from) / Decimal(price_usd)
 
-        from_wallet_crypto.balance -= Decimal(amount)  
-        to_wallet_crypto.balance += to_amount 
+        from_wallet_crypto.balance -= Decimal(amount)
+        to_wallet_crypto.balance += usd_amount
         from_wallet_crypto.save()
         to_wallet_crypto.save()
 
         # Log the exchange action
-        logger.info(f"تبدیل {amount} {from_currency.symbol} به {to_currency.symbol}.")
+        logger.info(f"فروش {amount} {from_currency.symbol} به {usd_amount} USDT.")
 
         Transaction.objects.create(
             user=request.user,
@@ -177,18 +191,12 @@ class SellCryptoView(APIView):
             transaction_type='sell',
             amount=Decimal(amount)
         )
-        Transaction.objects.create(
-            user=request.user,
-            cryptocurrency=to_currency,
-            transaction_type='sell',
-            amount=to_amount
-        )
 
         return Response(
             {
-                "message": f"تبدیل {amount} {from_currency.symbol} به {to_amount} {to_currency.symbol} با موفقیت انجام شد.",
+                "message": f"فروش {amount} {from_currency.symbol} به {usd_amount} USDT با موفقیت انجام شد.",
                 "from_currency_balance": from_wallet_crypto.balance,
-                "to_currency_balance": to_wallet_crypto.balance,
+                "usd_balance": to_wallet_crypto.balance,
             },
             status=status.HTTP_200_OK
         )
@@ -229,7 +237,6 @@ class ExchangeCryptoView(APIView):
 
 
         to_wallet_crypto, created = WalletCrypto.objects.get_or_create(wallet=wallet, cryptocurrency=to_currency)
-        # If both conditions are false, initialize the 'to_wallet_crypto'
         to_wallet_crypto = initialize_wallet_crypto_balance(wallet, to_currency)
                     
 
