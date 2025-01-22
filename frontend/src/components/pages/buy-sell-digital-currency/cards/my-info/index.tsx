@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getUserProfile } from "../../../../../api/authApi";
-import userProfileImg from "../../../../../assets/images/items/userprofile.png";
+import userProfileImg from "../../../../../assets/images/items/images-modified.png";
 import { Link } from "react-router-dom";
 export default function MyInfoCard() {
   const [profileData, setProfileData] = useState({
