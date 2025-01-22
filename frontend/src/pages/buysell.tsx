@@ -46,15 +46,14 @@ const BuyAndSellPage: React.FC = () => {
         { cryptocurrency: cryptoName, amount },
         API_HEADERS
       );
-      alert("Purchase successful!");
-      fetchWallet(); // Refresh wallet data
+      alert("خرید با موفقیت انجام شد.");
+      fetchWallet(); 
     } catch (err) {
-      setError("Failed to purchase cryptocurrency.");
+      setError("عملیات خرید با شکست مواجه شد.");
       console.error("Error details:", err);
     }
   };
 
-  // Sell Cryptocurrency
   const handleSell = async () => {
     try {
       await axios.post(
@@ -62,10 +61,10 @@ const BuyAndSellPage: React.FC = () => {
         { cryptocurrency: cryptoName, amount },
         API_HEADERS
       );
-      alert("Sale successful!");
-      fetchWallet(); // Refresh wallet data
+      alert("فروش با موفقیت انجام شد!");
+      fetchWallet(); 
     } catch (err) {
-      setError("Failed to sell cryptocurrency.");
+      setError("عملیات فروش با شکست مواجه شد.");
       console.error("Error details:", err);
     }
   };
@@ -82,10 +81,10 @@ const BuyAndSellPage: React.FC = () => {
         },
         API_HEADERS
       );
-      alert("Exchange successful!");
-      fetchWallet(); // Refresh wallet data
+      alert("تبدیل با موفقیت انجام شد");
+      fetchWallet(); 
     } catch (err) {
-      setError("Failed to exchange cryptocurrency.");
+      setError("عملیات تبدیل با شکست مواجه شد.");
       console.error("Error details:", err);
     }
   };

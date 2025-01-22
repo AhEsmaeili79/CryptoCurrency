@@ -8,14 +8,11 @@ from .serializers import WalletCryptoSerializer, TransactionSerializer
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
-# API URL and authentication token
 API_URL = "https://openapiv1.coinstats.app/coins"
 AUTH_TOKEN = "1Kyw6LHVmD5IYhPUWcAumrK+0FrsshmwC2OKMOq8L28="
 
-# Function to get prices from the CoinStats API
 def get_crypto_prices():
     headers = {
         "X-API-KEY": AUTH_TOKEN,
@@ -24,13 +21,11 @@ def get_crypto_prices():
     
     if response.status_code == 200:
         data = response.json()
-        print("Response Data:", data) 
-        return data.get("coins", [])
+        return data['result'][0]
     else:
         logger.error(f"Failed to fetch crypto prices, status code: {response.status_code}")
         return []
 
-# Function to get the price for a given cryptocurrency
 def get_crypto_price(crypto_symbol):
     coins = get_crypto_prices()
     for coin in coins:
@@ -68,7 +63,7 @@ class BuyCryptoView(APIView):
             "cryptocurrency": cryptocurrency.id,
             "amount": amount,
             "user": request.user.id,
-            "price": price,  # Add the price to the transaction data
+            "price": price,  
         }
         serializer = TransactionSerializer(data=data)
         if serializer.is_valid():
@@ -97,7 +92,6 @@ class SellCryptoView(APIView):
         except ObjectDoesNotExist:
             return Response({"error": f"Cryptocurrency {crypto_name} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get the real-time price of the cryptocurrency
         price = get_crypto_price(cryptocurrency.symbol)
         if price is None:
             return Response({"error": f"Unable to fetch the price for {crypto_name}."}, status=status.HTTP_400_BAD_REQUEST)
@@ -106,8 +100,9 @@ class SellCryptoView(APIView):
             "cryptocurrency": cryptocurrency.id,
             "amount": amount,
             "user": request.user.id,
-            "price": price,  # Add the price to the transaction data
+            "price": price,  
         }
+
         serializer = TransactionSerializer(data=data)
         if serializer.is_valid():
             transaction = serializer.save()
