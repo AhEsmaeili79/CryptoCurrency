@@ -1,4 +1,6 @@
 import { BsArrowLeft } from "react-icons/bs";
+import { Link } from "react-router-dom";
+
 
 export default function SafeExchange() {
   return (
@@ -6,10 +8,13 @@ export default function SafeExchange() {
       <h4 className="font-extraBold lg:text-4xl text-xl text-center text-white">
         با بهترین قیمت از امن‌ترین صرافی خرید کنید
       </h4>
+      <Link
+            to="auth">
       <button className="flex items-center gap-2 border border-white text-white rounded-lg py-2 px-4 mx-auto mt-6">
         همین حالا ثبت‌نام کن
-        <BsArrowLeft />
+          <BsArrowLeft />
       </button>
+      </Link>
     </div>
   );
 }

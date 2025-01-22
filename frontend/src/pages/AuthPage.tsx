@@ -15,20 +15,27 @@ const AuthPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false); 
   const navigate = useNavigate();
 
-  // Handle input changes
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      // Redirect to homepage if the token is found
+      navigate("/");
+    }
+  }, [navigate]);
+
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle signup form submission
+  
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const { username, email, password } = formData;
       const user = await signupUser(username, email, password);
-      setErrorMessage(""); // Clear any previous error messages
-      // On successful signup, show the login section
+      setErrorMessage(""); 
       setIsLoginActive(true);
       const wrapper = document.querySelector(`.${styles.wrapper}`);
       wrapper?.classList.add(styles.active); 
