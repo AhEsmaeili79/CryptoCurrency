@@ -1,32 +1,98 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useLocation } from "react-router-dom";
 import ChartComponent from "@utils/ChartComponent";
 
 const BuyAndSellPage: React.FC = () => {
   const [activeForm, setActiveForm] = useState("buyForm");
-  const [wallet, setWallet] = useState({
-    usd: 1000,
-    eur: 500,
-    btc: 0.5,
-    eth: 2,
-    doge: 1000,
-    ltc: 200,
-  });
+  const [wallet, setWallet] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [amount, setAmount] = useState<number>(0);
+  const [targetCrypto, setTargetCrypto] = useState<string>("");
 
   const location = useLocation();
   const { cryptoName, icon, price, coins } = location.state || {};
 
-  const handleTransaction = (type: string, currency: string, amount: number) => {
-    setWallet((prevWallet) => {
-      const updatedWallet = { ...prevWallet };
-      if (type === "buy") {
-        updatedWallet[currency] += amount;
-      } else if (type === "sell") {
-        updatedWallet[currency] -= amount;
-      }
-      return updatedWallet;
-    });
+  const token = localStorage.getItem("access_token");
+
+  const API_HEADERS = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
+
+  // Fetch Wallet Data
+  const fetchWallet = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://127.0.0.1:8000/api/wallet/", API_HEADERS);
+      setWallet(response.data.reduce((acc: any, item: any) => {
+        acc[item.cryptocurrency.symbol] = item.balance;
+        return acc;
+      }, {}));
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to load wallet data.");
+      setLoading(false);
+    }
+  };
+
+  // Buy Cryptocurrency
+  const handleBuy = async () => {
+    try {
+      await axios.post(
+        "http://127.0.0.1:8000/api/buy/",
+        { cryptocurrency: cryptoName, amount },
+        API_HEADERS
+      );
+      alert("Purchase successful!");
+      fetchWallet(); // Refresh wallet data
+    } catch (err) {
+      setError("Failed to purchase cryptocurrency.");
+      console.error("Error details:", err);
+    }
+  };
+
+  // Sell Cryptocurrency
+  const handleSell = async () => {
+    try {
+      await axios.post(
+        "http://127.0.0.1:8000/api/sell/",
+        { cryptocurrency: cryptoName, amount },
+        API_HEADERS
+      );
+      alert("Sale successful!");
+      fetchWallet(); // Refresh wallet data
+    } catch (err) {
+      setError("Failed to sell cryptocurrency.");
+      console.error("Error details:", err);
+    }
+  };
+
+  // Exchange Cryptocurrency
+  const handleExchange = async () => {
+    try {
+      await axios.post(
+        "http://127.0.0.1:8000/api/exchange/",
+        {
+          from_currency_id: cryptoName,
+          to_currency_id: targetCrypto,
+          amount,
+        },
+        API_HEADERS
+      );
+      alert("Exchange successful!");
+      fetchWallet(); // Refresh wallet data
+    } catch (err) {
+      setError("Failed to exchange cryptocurrency.");
+      console.error("Error details:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchWallet();
+  }, []);
 
   return (
     <div className="bg-gray-50 flex flex-col items-center justify-center min-h-screen max-w-screen-lg mx-auto mt-8 rounded-lg shadow-xl">
@@ -81,14 +147,19 @@ const BuyAndSellPage: React.FC = () => {
         {/* Wallet Balance */}
         <div className="wallet-info mb-6">
           <h2 className="text-xl text-blue-600 font-semibold mb-4">موجودی کیف پول</h2>
-          <div className="grid grid-cols-2 gap-4 text-blue-700 font-medium">
-            <div>USD: {wallet.usd}</div>
-            <div>EUR: {wallet.eur}</div>
-            <div>Bitcoin (BTC): {wallet.btc}</div>
-            <div>Ethereum (ETH): {wallet.eth}</div>
-            <div>Dogecoin (DOGE): {wallet.doge}</div>
-            <div>Litecoin (LTC): {wallet.ltc}</div>
-          </div>
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 text-blue-700 font-medium">
+              {Object.entries(wallet).map(([currency, balance]: any) => (
+                <div key={currency}>
+                  {currency.toUpperCase()}: {balance}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Forms */}
@@ -99,16 +170,13 @@ const BuyAndSellPage: React.FC = () => {
               <input
                 type="number"
                 placeholder="مبلغ خود را وارد کنید"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <select className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                <option value="Iranian Rial">ریال</option>
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-              </select>
               <button
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                onClick={() => handleTransaction("buy", "btc", 0.1)} // Example
+                onClick={handleBuy}
               >
                 خرید
               </button>
@@ -121,16 +189,13 @@ const BuyAndSellPage: React.FC = () => {
               <input
                 type="number"
                 placeholder="مبلغ خود را وارد کنید"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <select className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                <option value="Iranian Rial">ریال</option>
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-              </select>
               <button
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                onClick={() => handleTransaction("sell", "btc", 0.1)} // Example
+                onClick={handleSell}
               >
                 فروش
               </button>
@@ -143,9 +208,15 @@ const BuyAndSellPage: React.FC = () => {
               <input
                 type="number"
                 placeholder="مبلغ خود را وارد کنید"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <select className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+              <select
+                value={targetCrypto}
+                onChange={(e) => setTargetCrypto(e.target.value)}
+                className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              >
                 {coins && coins.length > 0 ? (
                   coins.map((coin: any, index: number) => (
                     <option key={index} value={coin.id}>
@@ -158,7 +229,7 @@ const BuyAndSellPage: React.FC = () => {
               </select>
               <button
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                onClick={() => handleTransaction("buy", "doge", 200)} // Example
+                onClick={handleExchange}
               >
                 تبدیل
               </button>
