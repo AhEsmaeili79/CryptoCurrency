@@ -2,7 +2,7 @@ import { useCoins } from "@hooks/use-coins";
 import { timestampConvertor } from "@utils/timestamp-convertor";
 import ReactEcharts from "echarts-for-react";
 import LinearChartSkeleton from "./skeleton";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import moment from "moment-jalaali";
 import { Line } from "react-chartjs-2";
 import {
