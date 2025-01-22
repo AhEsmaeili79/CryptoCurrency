@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import ChartComponent from "@utils/ChartComponent";
+import toast from "react-hot-toast";
+import { useCoins } from "@hooks/use-coins";
 
 const BuyAndSellPage: React.FC = () => {
   const [activeForm, setActiveForm] = useState("buyForm");
@@ -12,7 +14,16 @@ const BuyAndSellPage: React.FC = () => {
   const [targetCrypto, setTargetCrypto] = useState<string>("");
 
   const location = useLocation();
-  const { cryptoName, icon, price, coins } = location.state || {};
+  const { cryptoName, icon, price } = location.state || {};
+  
+  const { data: fetchedCoins } = useCoins(`/coins?&limit=100`);
+
+  const [coins, setCoins] = useState<any[]>([]);
+  useEffect(() => {
+    if (fetchedCoins?.result) {
+      setCoins(fetchedCoins.result);
+    }
+  }, [fetchedCoins]);
 
   const token = localStorage.getItem("access_token");
 
@@ -48,9 +59,9 @@ const BuyAndSellPage: React.FC = () => {
       );
       alert("خرید با موفقیت انجام شد.");
       fetchWallet(); 
-    } catch (err) {
-      setError("عملیات خرید با شکست مواجه شد.");
-      console.error("Error details:", err);
+    } catch (error: any) {
+      toast.error(error.response.data.error || "دوباره امتحان کنید!");
+      console.error("Error details:", error);
     }
   };
 
@@ -63,9 +74,9 @@ const BuyAndSellPage: React.FC = () => {
       );
       alert("فروش با موفقیت انجام شد!");
       fetchWallet(); 
-    } catch (err) {
-      setError("عملیات فروش با شکست مواجه شد.");
-      console.error("Error details:", err);
+    } catch (error: any) {
+      toast.error(error.response.data.error || "دوباره امتحان کنید!");
+      console.error("Error details:", error);
     }
   };
 
@@ -83,9 +94,9 @@ const BuyAndSellPage: React.FC = () => {
       );
       alert("تبدیل با موفقیت انجام شد");
       fetchWallet(); 
-    } catch (err) {
-      setError("عملیات تبدیل با شکست مواجه شد.");
-      console.error("Error details:", err);
+    } catch (error: any) {
+      toast.error(error.response.data.error || "دوباره امتحان کنید!");
+      console.error("Error details:", error);
     }
   };
 
