@@ -11,7 +11,7 @@ const BuyAndSellPage: React.FC = () => {
   const [wallet, setWallet] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>();
   const [targetCrypto, setTargetCrypto] = useState<string>("");
   const [coins, setCoins] = useState<any[]>([]);
 
@@ -194,6 +194,11 @@ const BuyAndSellPage: React.FC = () => {
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
+              <select className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <option value="Iranian Rial">ریال</option>
+                <option value="usd">USD</option>
+                <option value="eur">EUR</option>
+              </select>
               <button
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 onClick={handleBuy}
@@ -213,6 +218,11 @@ const BuyAndSellPage: React.FC = () => {
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
+              <select className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <option value="Iranian Rial">ریال</option>
+                <option value="usd">USD</option>
+                <option value="eur">EUR</option>
+              </select>
               <button
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 onClick={handleSell}
@@ -227,7 +237,7 @@ const BuyAndSellPage: React.FC = () => {
               <h2 className="font-bold text-xl text-blue-600 mb-4">تبدیل {cryptoName}</h2>
               <input
                 type="number"
-                placeholder="مبلغ خود را وارد کنید"
+                placeholder="مقدار موجودی جهت تبادل را وارد کنید"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full p-4 mb-4 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -252,7 +262,7 @@ const BuyAndSellPage: React.FC = () => {
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 onClick={handleExchange}
               >
-                تبدیل
+                تبادل
               </button>
             </div>
           )}
