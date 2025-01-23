@@ -2,12 +2,14 @@ import React from "react";
 import Select from "react-select";
 
 interface ConvertFormProps {
+  cryptoName:string;
   coins: Coin[];
   amount: number | undefined;
   setAmount: React.Dispatch<React.SetStateAction<number | undefined>>;
   targetCrypto: string;
   setTargetCrypto: React.Dispatch<React.SetStateAction<string>>;
   handleExchange: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const ConvertForm: React.FC<ConvertFormProps> = ({
@@ -18,6 +20,7 @@ const ConvertForm: React.FC<ConvertFormProps> = ({
   targetCrypto,
   setTargetCrypto,
   handleExchange,
+  isLoading,
 }) => {
   const customStyles = {
     menu: (provided: any) => ({
@@ -54,10 +57,11 @@ const ConvertForm: React.FC<ConvertFormProps> = ({
         noOptionsMessage={() => "No matching coins found"}
       />
       <button
-        className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        className={`w-full py-3 rounded-lg text-white ${isLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
         onClick={handleExchange}
+        disabled={isLoading}
       >
-        تبادل
+        {isLoading ? 'در حال تبادل...' : 'تبادل'}
       </button>
     </div>
   );

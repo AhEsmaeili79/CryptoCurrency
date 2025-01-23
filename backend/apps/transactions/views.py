@@ -67,6 +67,21 @@ class WalletView(APIView):
         serializer = WalletCryptoSerializer(cryptos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+class MoneyUsdBalanceView(APIView):
+    def get(self, request):
+        wallet = get_object_or_404(Wallet, user=request.user)
+        usd_currency = get_object_or_404(CryptoCurrency, name="MONEY_USD")
+        usd_crypto = WalletCrypto.objects.filter(wallet=wallet, cryptocurrency=usd_currency).first()
+        
+        if not usd_crypto:
+            return Response({"error": "MONEY_USD not found in wallet"}, status=status.HTTP_404_NOT_FOUND)
+        
+        response_data = {
+            "balance": usd_crypto.balance
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+    
     
 class BuyCryptoView(APIView):
     def post(self, request):

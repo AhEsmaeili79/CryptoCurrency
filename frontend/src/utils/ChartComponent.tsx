@@ -1,5 +1,5 @@
 import { useCoins } from "@hooks/use-coins";
-import { timestampConvertor } from "@utils/timestamp-convertor"; // You can remove this if you don't need it
+import { timestampConvertor } from "@utils/timestamp-convertor"; 
 import React, { useState } from "react";
 import moment from "moment-jalaali";
 import { Line } from "react-chartjs-2";

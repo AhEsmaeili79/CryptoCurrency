@@ -15,14 +15,6 @@ const AuthPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false); 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      navigate("/");
-    }
-  }, [navigate]);
-
-  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });

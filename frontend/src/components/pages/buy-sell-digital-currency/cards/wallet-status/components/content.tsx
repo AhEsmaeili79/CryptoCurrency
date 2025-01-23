@@ -1,8 +1,20 @@
+import { useState, useEffect } from "react";
+import { fetchUsdBalance } from "@api/walletApi";
 import { useWallet } from "@store/wallet";
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from "react-icons/io";
 
 export default function MyWalletStatusContent() {
   const setTime = useWallet((state) => state.setTime);
+  const [usdBalance, setUsdBalance] = useState(null);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("access_token"); // Adjust if you store it differently
+    if (accessToken) {
+      fetchUsdBalance(accessToken)
+        .then((balance) => setUsdBalance(balance))
+        .catch((err) => console.error(err.message));
+    }
+  }, []);
 
   return (
     <div className="flex flex-col md:gap-3 gap-8">
@@ -14,10 +26,10 @@ export default function MyWalletStatusContent() {
         </div>
         <div>
           <span className="block text-center md:text-xs text-sm whitespace-nowrap text-blue-700 font-bold">
-            موجودی کل حساب به تومان:
+            موجودی کل حساب به دلار:
           </span>
           <span className="block text-center md:text-sm text-blue-700 font-extraBold">
-            ۱.۲۵۴.۶۴۸.۰۰۰
+            {usdBalance !== null ? `${usdBalance} دلار` : "0 دلار"}
           </span>
         </div>
         <div className="flex md:justify-end justify-center md:col-span-1 col-span-2">

@@ -1,11 +1,8 @@
-// src/api/authApi.ts
+const API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
-const API_URL = "http://localhost:8000/api/users"; // Replace with your Django API URL
-
-// Signup user
 export const signupUser = async (username: string, email: string, password: string) => {
   try {
-    const response = await fetch(`${API_URL}/register/`, {
+    const response = await fetch(`${API_URL}/users/register/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,22 +20,21 @@ export const signupUser = async (username: string, email: string, password: stri
     }
 
     const data = await response.json();
-    return data; // Contains 'access' and 'refresh' tokens
+    return data; 
   } catch (error) {
     throw new Error(error.message || "Signup failed");
   }
 };
 
-// Login user
 export const loginUser = async (username: string, password: string) => {
   try {
-    const response = await fetch(`${API_URL}/login/`, {
+    const response = await fetch(`${API_URL}/users/login/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: username, // Using username for login as per your requirement
+        username: username, 
         password,
       }),
     });
@@ -49,7 +45,7 @@ export const loginUser = async (username: string, password: string) => {
     }
 
     const data = await response.json();
-    return data; // Contains 'access' and 'refresh' tokens
+    return data; 
   } catch (error) {
     throw new Error(error.message || "Login failed");
   }
@@ -57,7 +53,6 @@ export const loginUser = async (username: string, password: string) => {
 
 
 export const logoutUser = () => {
-  // Simply remove the access token from localStorage to log the user out
   localStorage.removeItem("access_token");
 };
 
@@ -68,7 +63,7 @@ export const getUserProfile = async (token: string) => {
   }
 
   try {
-    const response = await fetch(`${API_URL}/profile/`, {
+    const response = await fetch(`${API_URL}/users/profile/`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -89,10 +84,9 @@ export const getUserProfile = async (token: string) => {
 };
 
 
-// Update user profile
 export const updateUserProfile = async (token: string, profileData: any) => {
   try {
-    const response = await fetch(`${API_URL}/profile/`, {
+    const response = await fetch(`${API_URL}/users/profile/`, {
       method: "PUT",
       headers: {
         "Authorization": `Bearer ${token}`,

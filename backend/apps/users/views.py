@@ -11,9 +11,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from apps.transactions.models import Wallet, CryptoCurrency, WalletCrypto
 
 class RegisterView(APIView):
-    """
-    Handles user registration and JWT token generation.
-    """
     def post(self, request):
         data = request.data
         if User.objects.filter(username=data.get('username')).exists():
@@ -31,7 +28,6 @@ class RegisterView(APIView):
         )
         user.save()
         
-    
         wallet = Wallet.objects.create(user=user)
 
         dogecoin = CryptoCurrency.objects.get(name="dogecoin")
@@ -49,10 +45,8 @@ class RegisterView(APIView):
         }, status=status.HTTP_201_CREATED)
 
 
+
 class LoginView(APIView):
-    """
-    Handles user login and JWT token generation.
-    """
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -69,9 +63,6 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    """
-    Handles user logout by blacklisting the refresh token.
-    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -85,9 +76,6 @@ class LogoutView(APIView):
 
 
 class ProfileView(APIView):
-    """
-    Retrieves or updates user profile details.
-    """
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 

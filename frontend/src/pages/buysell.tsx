@@ -69,6 +69,7 @@ const BuyAndSellPage: React.FC<BuyAndSellPageProps> = () => {
       setIsLoading(true);
       await buyCrypto(cryptoName, amount);
       toast.success("خرید با موفقیت انجام شد");
+      setIsLoading(false);
       fetchWallet();
       setAmount(0);
     } catch (error: any) {
@@ -81,23 +82,29 @@ const BuyAndSellPage: React.FC<BuyAndSellPageProps> = () => {
 
   const handleSell = async () => {
     try {
+      setIsLoading(true);
       await sellCrypto(cryptoName, amount);
       toast.success("فروش با موفقیت انجام شد");
+      setIsLoading(false);
       fetchWallet();
     } catch (error: any) {
       toast.error(error.response?.data?.error || "دوباره امتحان کنید!");
       console.error("Error details:", error);
+      setIsLoading(false);
     }
   };
 
   const handleExchange = async () => {
     try {
+      setIsLoading(true);
       await exchangeCrypto(cryptoName, targetCrypto, amount);
       toast.success("تبدیل با موفقیت انجام شد!");
+      setIsLoading(false);
       fetchWallet();
     } catch (error: any) {
       toast.error(error.response?.data?.error || "دوباره امتحان کنید!");
       console.error("Error details:", error);
+      setIsLoading(false);
     }
   };
 
@@ -107,7 +114,7 @@ const BuyAndSellPage: React.FC<BuyAndSellPageProps> = () => {
 
   return (
     <div className="bg-gray-50 flex flex-col items-center justify-center min-h-screen max-w-screen-lg mx-auto mt-8 rounded-lg shadow-xl">
-      <div className="container bg-white rounded-lg p-8 w-11/12 max-w-3xl text-center shadow-2xl">
+      <div className="container bg-white rounded-lg p-8 w-11/12 max-w-3xl text-center shadow-2xl mb-6">
         <div className="flex justify-center items-center md:py-4 py-2 mb-6">
           <img
             src={icon}
@@ -129,8 +136,8 @@ const BuyAndSellPage: React.FC<BuyAndSellPageProps> = () => {
 
         <div className="forms">
           {activeForm === "buyForm" && <BuyForm cryptoName={cryptoName} amount={amount} setAmount={setAmount} isLoading={isLoading} handleBuy={handleBuy} />}
-          {activeForm === "sellForm" && <SellForm cryptoName={cryptoName} amount={amount} setAmount={setAmount} handleSell={handleSell} />}
-          {activeForm === "convertForm" && <ConvertForm cryptoName={cryptoName} coins={coins} amount={amount} setAmount={setAmount} targetCrypto={targetCrypto} setTargetCrypto={setTargetCrypto} handleExchange={handleExchange} />}
+          {activeForm === "sellForm" && <SellForm cryptoName={cryptoName} amount={amount} setAmount={setAmount} isLoading={isLoading} handleSell={handleSell} />}
+          {activeForm === "convertForm" && <ConvertForm cryptoName={cryptoName} coins={coins} amount={amount} isLoading={isLoading} setAmount={setAmount} targetCrypto={targetCrypto} setTargetCrypto={setTargetCrypto} handleExchange={handleExchange} />}
         </div>
       </div>
     </div>

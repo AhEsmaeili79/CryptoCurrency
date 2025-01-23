@@ -13,8 +13,8 @@ export default function Navbar() {
   // Show menu state
   const [showMenu, setShowMenu] = useState<Boolean | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [profile, setProfile] = useState(null); // Store user profile data
-  const [loading, setLoading] = useState(true); // Loading state for profile
+  const [profile, setProfile] = useState(null); 
+  const [loading, setLoading] = useState(true); 
 
   const showMenuHandler = () => {
     setShowMenu(true);
@@ -22,16 +22,16 @@ export default function Navbar() {
 
   // Logout handler
   const handleLogout = async () => {
-    const token = localStorage.getItem("access_token"); // Retrieve token from localStorage
+    const token = localStorage.getItem("access_token"); 
     if (!token) {
       console.error("No token found in localStorage");
       return;
     }
 
     try {
-      await logoutUser(token); // Call the logout API
+      await logoutUser(token);
       localStorage.removeItem("access_token");
-      window.location.href = "/"; // Redirect user to homepage or login page
+      window.location.href = "/"; 
     } catch (error: any) {
       console.error("Error during logout:", error.message);
     }
@@ -42,7 +42,6 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    // Function to fetch profile data
     const fetchProfileData = async () => {
       const token = localStorage.getItem("access_token");
 
@@ -59,7 +58,6 @@ export default function Navbar() {
         setLoading(false);
       } catch (error) {
         if (error.message.includes("token")) {
-          // Token might be expired, refresh it
           const newToken = await refreshToken();
           localStorage.setItem("access_token", newToken);
           const refreshedProfileData = await getUserProfile(newToken);
