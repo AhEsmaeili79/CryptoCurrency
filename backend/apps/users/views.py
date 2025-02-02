@@ -14,9 +14,9 @@ class RegisterView(APIView):
     def post(self, request):
         data = request.data
         if User.objects.filter(username=data.get('username')).exists():
-            return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "نام کاربری قبلا ثبت شده است"}, status=status.HTTP_400_BAD_REQUEST)
         if User.objects.filter(email=data.get('email')).exists():
-            return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "ایمیل قبلا ثبت شده است"}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User(
             username=data.get('username'),
@@ -45,7 +45,6 @@ class RegisterView(APIView):
         }, status=status.HTTP_201_CREATED)
 
 
-
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -59,7 +58,7 @@ class LoginView(APIView):
                 "access": str(refresh.access_token),
             }, status=status.HTTP_200_OK)
 
-        return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"error": "نام کاربری یا رمز عبور اشتباه است"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LogoutView(APIView):
@@ -70,9 +69,9 @@ class LogoutView(APIView):
             refresh_token = request.data.get("refresh")
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response({"message": "Logged out successfully"}, status=status.HTTP_205_RESET_CONTENT)
+            return Response({"message": "خروج با موفقیت انجام شد"}, status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "توکن نامعتبر است"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileView(APIView):

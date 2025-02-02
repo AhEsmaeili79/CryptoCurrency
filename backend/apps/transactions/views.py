@@ -55,7 +55,7 @@ class TransactionListView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
-            return Transaction.objects.filter(user=user).order_by('-created_at')  # Order by created_at descending
+            return Transaction.objects.filter(user=user).order_by('-created_at')  
         return Transaction.objects.none()
 
 
@@ -75,7 +75,7 @@ class MoneyUsdBalanceView(APIView):
         usd_crypto = WalletCrypto.objects.filter(wallet=wallet, cryptocurrency=usd_currency).first()
         
         if not usd_crypto:
-            return Response({"error": "MONEY_USD not found in wallet"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "شما حساب دلاری ندارید"}, status=status.HTTP_404_NOT_FOUND)
         
         response_data = {
             "balance": usd_crypto.balance
